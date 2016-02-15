@@ -29,7 +29,7 @@ public class HexWindow extends JFrame {
         }
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(createMenuBar());
-        hexGrid = new HexGrid(15, 15, 28, 10);
+        hexGrid = new HexGrid(15, 15, 26, 10);
         setContentPane(createContentPane(hexGrid));
         setSize(sizeX, sizeY);
         setVisible(true);
