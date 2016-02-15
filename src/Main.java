@@ -6,15 +6,16 @@ import view.HexWindow;
  */
 public class Main {
     public static void main (String[] args) {
-        /*Game game = new Game(10, 10);
-        game.print();
-        System.out.println("-------------------");
+        Game game = new Game(10, 10);
+        //game.print();
+        /*System.out.println("-------------------");
         game.liven_cell(5,4);
         //game.tick();
         game.print();
         System.out.println("-------------------");
         game.tick();
         game.print();*/
-        HexWindow mainWindow = new HexWindow();
+        HexWindow mainWindow = new HexWindow(game);
+        game.addObserver(mainWindow);
     }
 }

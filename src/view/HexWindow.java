@@ -1,5 +1,6 @@
 package view;
 
+import game_of_life.Game;
 import sun.applet.Main;
 
 import javax.swing.*;
@@ -10,18 +11,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by marting422 on 10.02.2016.
  */
-public class HexWindow extends JFrame {
+public class HexWindow extends JFrame implements Observer {
     private int sizeX = 800;
     private int sizeY = 600;
     JScrollPane scrollPane;
     HexGrid hexGrid;
     HexWindow thisWindow = this; // for exit event
+    Game game;
 
-    public HexWindow () {
+    public HexWindow (Game game) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
@@ -29,9 +33,11 @@ public class HexWindow extends JFrame {
         }
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(createMenuBar());
-        hexGrid = new HexGrid(15, 15, 26, 10);
+        this.game = game;
+        hexGrid = new HexGrid(game, game.getWidth(), game.getHeight(), 26, 10);
         setContentPane(createContentPane(hexGrid));
         setSize(sizeX, sizeY);
+        setMinimumSize(new Dimension(sizeX, sizeY));
         setVisible(true);
     }
 
@@ -152,9 +158,34 @@ public class HexWindow extends JFrame {
                 "wat accessible context");
         menuBar.add(menu);
 
-        // Items SIMULATION - RUN
+        // Items SIMULATION - STEP
+        menuItem = new JMenuItem("Step", KeyEvent.VK_T);
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                game.tick();
+            }
+        });
+        menu.add(menuItem);
+
+        // Items SIMULATION - SETTINGS
         menu.addSeparator();
         menuItem = new JMenuItem("Settings", KeyEvent.VK_S);
+        menu.add(menuItem);
+
+        // Menu Help
+        menu = new JMenu("Help");
+        menu.setMnemonic(KeyEvent.VK_H);
+        menu.getAccessibleContext().setAccessibleDescription(
+                "wat accessible context");
+        menuBar.add(menu);
+
+        // Items HELP - ABOUT
+        menuItem = new JMenuItem("About...", KeyEvent.VK_A);
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog (null, "Game of Life, Azhbakov Artem FIT 13201", "About", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         menu.add(menuItem);
 
         return menuBar;
@@ -163,16 +194,27 @@ public class HexWindow extends JFrame {
     public Container createContentPane(JPanel content) {
         //Create the content-pane-to-be.
         JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.setPreferredSize(new Dimension(sizeX, sizeY));
         contentPane.setOpaque(true);
 
         //Create a scrolled text area.
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(sizeX/2, sizeY/2));
+        panel.setPreferredSize(new Dimension(sizeX, sizeY));
         scrollPane = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setPreferredSize(new Dimension(sizeX/2, sizeY/2));
+        //scrollPane.
+        scrollPane.setPreferredSize(new Dimension(sizeX, sizeY));
         //Add the text area to the content pane.
         contentPane.add(scrollPane, BorderLayout.CENTER);
-
         return contentPane;
+    }
+
+    public void update (Observable observable, Object obj) {
+        Game g = (Game) observable;
+        for (int i = 0; i < g.getWidth(); i++) {
+            for (int j = 0; j < g.getHeight(); j++) {
+                if (g.isAlive(i, j)) hexGrid.livenHex(i, j);
+                else hexGrid.killHex(i, j);
+            }
+        }
     }
 }

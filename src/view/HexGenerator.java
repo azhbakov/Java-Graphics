@@ -1,15 +1,17 @@
 package view;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
  * Created by marting422 on 15.02.2016.
  */
-public class HexGenerator extends JComponent {
-    BufferedImage canvas;
-    public int h, r, s, t, edge, cornerEdge;
+public class HexGenerator {
+    //BufferedImage image;
+    //BufferedImage dead;
+    private int h, r, s, t, edge, cornerEdge;
+    private int imageWidth;
+    private int imageHeight;
 
     public HexGenerator(int hexSide, int edge) {
         this.edge = edge;
@@ -21,33 +23,45 @@ public class HexGenerator extends JComponent {
         cornerEdge -= getHexVertexY(0, 0);
         setSide(hexSide);
 
-        int canvasWidth = edge + (h+edge+1);
-        int canvasHeight = (cornerEdge + s+t) + t+cornerEdge + (1-hexSide&1);
-        setSize(canvasWidth,canvasHeight);
-        canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+        imageWidth = edge + (h+edge+1);
+        imageHeight = (cornerEdge + s+t) + t+cornerEdge + (1-hexSide&1);
+        //setSize(imageWidth,imageHeight);
+        //image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+        //dead = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
         //fillCanvas(Color.pink);
 
-        drawHex(edge+r, cornerEdge+s/2+t, Color.red);
+        //drawHex(image, edge+r, cornerEdge+s/2+t, Color.red);
+        //drawHex(dead, edge+r, cornerEdge+s/2+t, Color.white);
     }
 
-    public void fillCanvas(Color c) {
-        int color = c.getRGB();
-        for (int x = 0; x < canvas.getWidth(); x++) {
-            for (int y = 0; y < canvas.getHeight(); y++) {
-                canvas.setRGB(x, y, color);
-            }
-        }
-        repaint();
-    }
-
-    public void paintComponent(Graphics g) {
+    /*public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        g2.drawImage(canvas, null, null);
+        g2.drawImage(image, null, null);
         //g2.drawLine(0,0,100,100);
+    }*/
+
+    // Change hex prefab parameters of the grid
+    public void setHeight (int height) {
+        h = height;
+        r = (int)Math.ceil((float)h/2);
+        t = (int) (r * Math.tan(Math.PI/6));
+        s = (int) Math.ceil(((float)r / Math.cos(Math.PI/6)));
     }
 
-    private void drawHex (int centerX, int centerY, Color hexColor) {
+    // Change hex prefab parameters of the grid
+    public void setSide (int side) {
+        s = side;
+        r = (int)(s * Math.cos(Math.PI/6));
+        t = (int) (r * Math.tan(Math.PI/6));
+        h = 2*r;
+    }
+
+    public Hex drawHex (Color hexColor) {
+        int centerX = edge+r;
+        int centerY = cornerEdge+s/2+t;
+        BufferedImage hexImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
+
         // Init Bresenham movement along up right edge
         XBresenhemIterator brInner = new XBresenhemIterator(getHexVertexX(centerX, 0), getHexVertexY(centerY, 0),
                 getHexVertexX(centerX, 1), getHexVertexY(centerY, 1)); // go along inner up right edge
@@ -63,12 +77,12 @@ public class HexGenerator extends JComponent {
         for (int x = 0; x <= r + edge; x++) {
             // Fill vertical line inside
             for (int y = 0; y <= innerEdgeY; y++) {
-                setPixelInHex(centerX, centerY, x, y, hexColor);
+                setPixelInHex(hexImage, centerX, centerY, x, y, hexColor);
             }
             // Fill vertical line in edge
-            if (innerEdgeY == outerEdgeY) setPixelInHex(centerX, centerY, x, innerEdgeY, Color.black);
+            if (innerEdgeY == outerEdgeY) setPixelInHex(hexImage, centerX, centerY, x, innerEdgeY, Color.black);
             for (int y = innerEdgeY+1; y <= outerEdgeY; y++) {
-                setPixelInHex(centerX, centerY, x, y, Color.black);
+                setPixelInHex(hexImage, centerX, centerY, x, y, Color.black);
             }
 
             // Calc Y coordinates of next inner and outer edge
@@ -81,7 +95,19 @@ public class HexGenerator extends JComponent {
             brInner.step();
             brOuter.step();
         }
+        return new Hex(hexImage, h, r, s, t, edge, cornerEdge);
     }
+
+    public void fillCanvas(BufferedImage image, Color c) {
+        int color = c.getRGB();
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                image.setRGB(x, y, color);
+            }
+        }
+        //repaint();
+    }
+
 
     // Works only with x2-x1>y2-y1, positive dir, line goes right and down, stretched horizontally
     // Moves along line on demand according to Bresenham algorithm
@@ -130,28 +156,12 @@ public class HexGenerator extends JComponent {
         }
     }
 
-    private void setPixelInHex (int centerX, int centerY, int dx, int dy, Color c) {
+    private void setPixelInHex (BufferedImage im, int centerX, int centerY, int dx, int dy, Color c) {
         // fills 4 pixels in one time (from 1st quarter to whole hex)
-        canvas.setRGB(centerX+dx, centerY+dy, c.getRGB());
-        canvas.setRGB(centerX+dx, centerY-dy, c.getRGB());
-        canvas.setRGB(centerX-dx, centerY+dy, c.getRGB());
-        canvas.setRGB(centerX-dx, centerY-dy, c.getRGB());
-    }
-
-    // Change hex prefab parameters of the grid
-    public void setHeight (int height) {
-        h = height;
-        r = (int)Math.ceil((float)h/2);
-        t = (int) (r * Math.tan(Math.PI/6));
-        s = (int) Math.ceil(((float)r / Math.cos(Math.PI/6)));
-    }
-
-    // Change hex prefab parameters of the grid
-    public void setSide (int side) {
-        s = side;
-        r = (int)(s * Math.cos(Math.PI/6));
-        t = (int) (r * Math.tan(Math.PI/6));
-        h = 2*r;
+        im.setRGB(centerX+dx, centerY+dy, c.getRGB());
+        im.setRGB(centerX+dx, centerY-dy, c.getRGB());
+        im.setRGB(centerX-dx, centerY+dy, c.getRGB());
+        im.setRGB(centerX-dx, centerY-dy, c.getRGB());
     }
 
     // Find X coordinate of vertex using hex center coordinates

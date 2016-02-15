@@ -1,12 +1,13 @@
 package game_of_life;
 
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Vector;
 
 /**
  * Created by Martin on 09.02.2016.
  */
-public class Game {
+public class Game extends Observable {
     private int width = 10, height = 10;
     private float LIVE_BEGIN = 2.0f;
     private float LIVE_END = 3.3f;
@@ -77,7 +78,7 @@ public class Game {
         return  width - (y & 1);
     }
 
-    private boolean isAlive (int x, int y) {
+    public boolean isAlive (int x, int y) {
         if (x < 0 || x >= getLineWidth(y)) return false;
         if (y < 0 || y >= height) return false;
         return field.get(y).get(x).getState();
@@ -104,6 +105,8 @@ public class Game {
                 impacts.get(y).set(x, new Float(getImpact(x,y)));
             }
         }
+        setChanged();
+        notifyObservers(null);
     }
 
     public void tick () {
@@ -146,6 +149,14 @@ public class Game {
     public void switch_cell (int x, int y) {
         field.get(y).get(x).switchState();
         updateImpacts();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
 }
