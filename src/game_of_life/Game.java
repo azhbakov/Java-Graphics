@@ -136,17 +136,34 @@ public class Game extends Observable {
         }
     }
 
+    public void clear () {
+        for (int y = 0; y < height; y++) {
+            if (getLineWidth(y) < width) System.out.print(" ");
+            for (int x = 0; x < getLineWidth(y); x++) {
+                Cell c = field.get(y).get(x);
+                c.kill();
+            }
+        }
+        updateImpacts();
+    }
+
     public void liven_cell (int x, int y) {
+        if (x < 0 || x >= width) return;
+        if (y < 0 || y >= height) return;
         field.get(y).get(x).liven();
         updateImpacts();
     }
 
     public void kill_cell (int x, int y) {
+        if (x < 0 || x >= width) return;
+        if (y < 0 || y >= height) return;
         field.get(y).get(x).kill();
         updateImpacts();
     }
 
     public void switch_cell (int x, int y) {
+        if (x < 0 || x >= width) return;
+        if (y < 0 || y >= height) return;
         field.get(y).get(x).switchState();
         updateImpacts();
     }

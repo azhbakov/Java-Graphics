@@ -6,7 +6,7 @@ import view.HexWindow;
  */
 public class Main {
     public static void main (String[] args) {
-        Game game = new Game(10, 10);
+        Game game = new Game(15, 15);
         //game.print();
         /*System.out.println("-------------------");
         game.liven_cell(5,4);

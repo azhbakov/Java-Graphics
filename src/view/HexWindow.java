@@ -34,7 +34,7 @@ public class HexWindow extends JFrame implements Observer {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(createMenuBar());
         this.game = game;
-        hexGrid = new HexGrid(game, game.getWidth(), game.getHeight(), 26, 10);
+        hexGrid = new HexGrid(game, game.getWidth(), game.getHeight(), 25, 10);
         setContentPane(createContentPane(hexGrid));
         setSize(sizeX, sizeY);
         setMinimumSize(new Dimension(sizeX, sizeY));
@@ -118,6 +118,11 @@ public class HexWindow extends JFrame implements Observer {
         // Items EDIT - CLEAR
         menu.addSeparator();
         menuItem = new JMenuItem("Clear", KeyEvent.VK_C);
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                game.clear();
+            }
+        });
         menu.add(menuItem);
 
         // Items EDIT - SETTING
@@ -167,9 +172,9 @@ public class HexWindow extends JFrame implements Observer {
         });
         menu.add(menuItem);
 
-        // Items SIMULATION - SETTINGS
+        // Items SIMULATION - PARAMETERS
         menu.addSeparator();
-        menuItem = new JMenuItem("Settings", KeyEvent.VK_S);
+        menuItem = new JMenuItem("Parameters", KeyEvent.VK_P);
         menu.add(menuItem);
 
         // Menu Help

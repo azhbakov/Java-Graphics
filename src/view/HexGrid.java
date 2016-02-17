@@ -67,14 +67,24 @@ public class HexGrid extends JPanel{
         int centerX = getCenterX(col, row);
         int centerY = getCenterY(col, row);
 
-        final JLabel l = new JLabel(new ImageIcon(deadHex.image));
+        final JLabel l = new JLabel(deadHex.icon);
         grid[col][row] = l;
         add(l);
         l.setSize(deadHex.image.getWidth(), deadHex.image.getHeight());
         l.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                getHexColumn(e.getX(), e.getY());
-                game.switch_cell(col, row);
+                //getHexColumn(e.getX(), e.getY());
+                BelongToHex res = aliveHex.insideHex(e.getX(), e.getY());
+                if (res == BelongToHex.INSIDE) {
+                    game.switch_cell(col, row);
+                } else if (res == BelongToHex.RIGHT) {
+                    game.switch_cell(col + (row&1), row + 1);
+                } else if (res == BelongToHex.LEFT) {
+                    game.switch_cell(col - ((row-1)&1), row + 1);
+                }
+                System.out.print(col);
+                System.out.print(col - ((row-1)&1));
+                System.out.println(col + (row&1));
                 //l.setIcon(new ImageIcon(deadHex.image));
             }
 
@@ -99,13 +109,13 @@ public class HexGrid extends JPanel{
 
     public void livenHex (int col, int row) {
         if (grid[col][row] == null) return;
-        grid[col][row].setIcon(new ImageIcon(aliveHex.image));
+        grid[col][row].setIcon(aliveHex.icon);
         //drawHex(getCenterX(col,row), getCenterY(col, row), hexColor);
     }
 
     public void killHex (int col, int row) {
         if (grid[col][row] == null) return;
-        grid[col][row].setIcon(new ImageIcon(deadHex.image));
+        grid[col][row].setIcon(deadHex.icon);
         //drawHex(getCenterX(col,row), getCenterY(col, row), hexColor);
     }
 

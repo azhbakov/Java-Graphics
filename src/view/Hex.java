@@ -10,6 +10,7 @@ public class Hex extends JComponent {
     public final int h, r, s, t, edge, cornerEdge;
     private final int centerX, centerY;
     public BufferedImage image;
+    public ImageIcon icon;
 
     private Hex () {
         this.h = 0;
@@ -31,21 +32,43 @@ public class Hex extends JComponent {
         centerX = edge+r;
         centerY = cornerEdge+s/2+t;
         image = bi;
+        icon = new ImageIcon(bi);
     }
 
-    public boolean insideHex (int pixelX, int pixelY) {
+    public BelongToHex insideHex (int pixelX, int pixelY) {
         boolean right;
         boolean up;
+        //System.out.println("\nRaw: "+pixelX +" "+ pixelY);
+        //System.out.println("Center: "+centerX +" "+ centerY);
         if (pixelX > centerX) right = true;
         else right = false;
-        if (pixelY < centerY) up = true;
+        if (pixelY > centerY) up = true;
         else up = false;
+        //System.out.println("Right: "+right);
+        //System.out.println("Up: "+up);
 
-        int y1, y2, x1, x2;
-        if (right && up) {
+        // Mirror pixel
+        pixelX = (int)Math.abs(pixelX - centerX);
+        if (up) pixelY = 2*centerY - pixelY;
 
-        }
-        return true; // TODO
+        final float sqrt3 = (float)(Math.sqrt(3f));
+        if (pixelY > cornerEdge + pixelX/sqrt3 && pixelX < r)
+            return BelongToHex.INSIDE;
+
+        if (pixelX/sqrt3 <= pixelY && pixelY < cornerEdge + pixelX/sqrt3)
+            return BelongToHex.EDGE;
+
+        if (pixelY < pixelX/sqrt3)
+            if (right)
+                return BelongToHex.RIGHT;
+            else
+                return BelongToHex.LEFT;
+
+        return BelongToHex.EDGE;
+        //System.out.println("Pixel X = " + pixelX + ", r = " + r);
+        //System.out.println("Pixel Y = " + pixelY + ", edge = " + (cornerEdge + pixelX/sqrt3));
+        //System.out.println("Res: " + res);
+        //return res; // TODO
     }
 
     // Find X coordinate of vertex using hex center coordinates
