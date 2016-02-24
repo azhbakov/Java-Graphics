@@ -82,9 +82,9 @@ public class HexGrid extends JPanel{
                 } else if (res == BelongToHex.LEFT) {
                     game.switch_cell(col - ((row-1)&1), row + 1);
                 }
-                System.out.print(col);
-                System.out.print(col - ((row-1)&1));
-                System.out.println(col + (row&1));
+                //System.out.print(col);
+                //System.out.print(col - ((row-1)&1));
+                //System.out.println(col + (row&1));
                 //l.setIcon(new ImageIcon(deadHex.image));
             }
 
