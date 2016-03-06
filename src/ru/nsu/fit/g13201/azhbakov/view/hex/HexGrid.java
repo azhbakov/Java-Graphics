@@ -144,7 +144,7 @@ public class HexGrid extends JPanel implements Observer {
         // Show impact
         if (!game.getShowImpacts() || hex.s < 13) return;
         g2.setColor(Color.black);
-        Font font = new Font("Serif", Font.PLAIN, 16);
+        Font font = new Font("Serif", Font.BOLD, 16);
         g2.setFont(font);
         float impact = game.getImpact(col, row);
         if (impact == Math.round(impact)) {

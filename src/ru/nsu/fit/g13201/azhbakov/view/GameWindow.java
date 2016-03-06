@@ -78,7 +78,8 @@ public class GameWindow extends MainWindow implements Observer {
                 new ToolBarContent(stepAction, false),
                 new ToolBarContent(runAction, true),
 
-                new ToolBarContent(aboutAction, false)};
+                new ToolBarContent(aboutAction, false),
+                new ToolBarContent(exitAction, false)};
         toolBar = createToolBar(toolBarContents);
         add(toolBar, BorderLayout.PAGE_START);
 
@@ -242,13 +243,11 @@ public class GameWindow extends MainWindow implements Observer {
     public class XORAction extends AbstractAction {
         public XORAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("XOR");
-            String desc = null;
-            String longDesc = "Switch cell state on click";
+            String desc = "Switch cell state on click";
             int mnemonic = KeyEvent.VK_X;
             KeyStroke keyStroke = null;
             putValue(ACCELERATOR_KEY, keyStroke);
-            putValue(SHORT_DESCRIPTION, desc);
-            putValue(LONG_DESCRIPTION, longDesc);
+            putValue(SHORT_DESCRIPTION, desc);;
             putValue(MNEMONIC_KEY, mnemonic);
             putValue(SMALL_ICON, new ImageIcon("./icons/xor.png"));
         }
@@ -400,12 +399,13 @@ public class GameWindow extends MainWindow implements Observer {
     public class ExitAction extends AbstractAction {
         public ExitAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("Exit");
-            String desc =  "Quit programm and return to desktop";
+            String desc =  "Quit program and return to desktop";
             int mnemonic = KeyEvent.VK_X;
             KeyStroke keyStroke = null;
             //putValue(ACCELERATOR_KEY, keyStroke);
-            //putValue(SHORT_DESCRIPTION, desc);
+            putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./icons/exit.png"));
         }
         public void actionPerformed(ActionEvent e) {
             exit ();
