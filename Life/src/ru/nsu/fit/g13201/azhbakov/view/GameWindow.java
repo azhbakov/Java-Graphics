@@ -249,7 +249,7 @@ public class GameWindow extends MainWindow implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);;
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/xor.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/xor.png"));
         }
         public void actionPerformed(ActionEvent e) {
             game.setClickMode (ClickMode.XOR);
@@ -265,7 +265,7 @@ public class GameWindow extends MainWindow implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/replace.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/replace.png"));
         }
         public void actionPerformed(ActionEvent e) {
             game.setClickMode (ClickMode.REPLACE);
@@ -280,7 +280,7 @@ public class GameWindow extends MainWindow implements Observer {
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control N");
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
-            putValue(SMALL_ICON, new ImageIcon("./icons/new.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/new.png"));
         }
         public void actionPerformed(ActionEvent e) {
             newFile ();
@@ -321,7 +321,7 @@ public class GameWindow extends MainWindow implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/load.png"));
         }
         public void actionPerformed(ActionEvent e) {
             openFile ();
@@ -351,7 +351,7 @@ public class GameWindow extends MainWindow implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/save.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/save.png"));
         }
         public void actionPerformed(ActionEvent e) {
             saveFile ();
@@ -405,7 +405,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/exit.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/exit.png"));
         }
         public void actionPerformed(ActionEvent e) {
             exit ();
@@ -441,7 +441,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/step.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/step.png"));
         }
         public void actionPerformed(ActionEvent e) {
             step ();
@@ -460,7 +460,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/run.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/run.png"));
         }
         public void actionPerformed(ActionEvent e) {
             game.run ();
@@ -477,7 +477,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/clear.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/clear.png"));
         }
         public void actionPerformed(ActionEvent e) {
             clear ();
@@ -496,7 +496,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/preferences.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/preferences.png"));
         }
         public void actionPerformed(ActionEvent e) {
             showPreferences ();
@@ -546,7 +546,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/impacts.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/impacts.png"));
         }
         public void actionPerformed(ActionEvent e) {
             game.setShowImpacts (!game.getShowImpacts());
@@ -562,7 +562,7 @@ public class GameWindow extends MainWindow implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
