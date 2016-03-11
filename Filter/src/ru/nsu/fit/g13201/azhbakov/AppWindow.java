@@ -1,37 +1,39 @@
 package ru.nsu.fit.g13201.azhbakov;
 
-import ru.nsu.fit.g13201.azhbakov.BMP.BMPReader;
-import ru.nsu.fit.g13201.azhbakov.BMP.BadFileException;
+import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
+import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
+import ru.nsu.fit.g13201.azhbakov.Model.Downscale;
+import ru.nsu.fit.g13201.azhbakov.Model.FileUtils;
+import ru.nsu.fit.g13201.azhbakov.Model.Logic;
 import ru.nsu.fit.g13201.azhbakov.ToolbarUtils.ToolbarContent;
 import ru.nsu.fit.g13201.azhbakov.ToolbarUtils.ToolbarUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by marting422 on 09.03.2016.
  */
-public class AppWindow extends JFrame {
-    final static Dimension zoneSize = new Dimension(350, 350);
-    final static int border = 10;
-    File currentFile = null;
-    Zone zoneA;
-    Zone zoneB;
-    Zone zoneC;
+public class AppWindow extends JFrame implements Observer {
+    Logic logic;
+    Zone zoneA; JLabel labelA; ImageIcon imageA;
+    Zone zoneB; JLabel labelB; ImageIcon imageB;
+    Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
-    Action openAction;
+    Action newAction, openAction, saveAction, saveAsAction, exitAction;
 
-    public AppWindow () {
-        super ();
-        setCurrentFile(null);
-        zoneA = new Zone("Zone A", zoneSize, border);
-        zoneB = new Zone("Zone B", zoneSize, border);
-        zoneC = new Zone("Zone C", zoneSize, border);
+    public AppWindow (Logic logic) {
+        super ("Filter");
+        this.logic = logic;
+        logic.addObserver(this);
+        initZones();
         initActions();
         initToolbar ();
         initScrollPane ();
@@ -51,13 +53,50 @@ public class AppWindow extends JFrame {
         setVisible(true);
     }
 
+    private void initZones () {
+        zoneA = new Zone(logic.zoneSize, logic.border);
+        zoneB = new Zone(logic.zoneSize, logic.border);
+        zoneC = new Zone(logic.zoneSize, logic.border);
+
+        imageA = new ImageIcon();
+        labelA = new JLabel(imageA);
+        labelA.setText("Zone A");
+        labelA.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+            }
+        });
+        zoneA.add(labelA);
+
+        imageB = new ImageIcon();
+        labelB = new JLabel(imageB);
+        labelB.setText("Zone B");
+        zoneB.add(labelB);
+
+        imageC = new ImageIcon();
+        labelC = new JLabel(imageC);
+        labelC.setText("Zone C");
+        zoneC.add(labelC);
+
+        repaint();
+    }
+
     private void initActions () {
         openAction = new OpenAction();
+        newAction = new NewAction();
+        openAction = new OpenAction();
+        saveAction = new SaveAction();
+        saveAsAction = new SaveAsAction();
+        exitAction = new ExitAction();
     }
 
     private void initToolbar () {
         ToolbarContent[] toolbarContents = {
+                new ToolbarContent(newAction, false),
                 new ToolbarContent(openAction, false),
+                new ToolbarContent(saveAction, true),
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -75,25 +114,176 @@ public class AppWindow extends JFrame {
         add(scrollPane);
     }
 
-    private void loadBMP (File f) throws IOException, BadFileException {
-        BufferedImage bufferedImage = BMPReader.readBMP(f);
-        JLabel label = new JLabel(new ImageIcon(bufferedImage));
-        zoneA.add(label);
-        repaint();
-    }
-
     private void setCurrentFile (File f) {
-        currentFile = f;
         if (f == null) {
             setTitle("Filter");
         } else {
-            setTitle(currentFile.getName() + " - Filter");
+            setTitle(f.getName() + " - Filter");
         }
+    }
+
+    public void update (Observable observable, Object object) {
+        setCurrentFile(logic.getCurrentFile());
+
+        if (logic.getImageA() == null) {
+            labelA.setIcon(null);
+            labelA.setText("Zone A");
+        } else {
+            imageA.setImage(logic.getImageA());
+            labelA.setIcon(imageA);
+            labelA.setText(null);
+        }
+        labelA.revalidate();
+        labelA.repaint();
+
+        if (logic.getImageB() == null) {
+            labelB.setIcon(null);
+            labelB.setText("Zone B");
+        } else {
+            imageB.setImage(logic.getImageB());
+            labelB.setIcon(imageB);
+            labelB.setText(null);
+        }
+        labelB.revalidate();
+        labelB.repaint();
+
+        if (logic.getImageC() == null) {
+            labelC.setIcon(null);
+            labelC.setText("Zone C");
+        } else {
+            imageC.setImage(logic.getImageC());
+            labelC.setIcon(imageC);
+            labelC.setText(null);
+        }
+        labelC.revalidate();
+        labelC.repaint();
+
+        System.out.println("UPDATED");
     }
 
     //
     // ACTIONS
     //
+    public class NewAction extends AbstractAction {
+        public NewAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("New");
+            String desc = "Create a new image from scratch";
+            int mnemonic = KeyEvent.VK_N;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control N");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/new.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            newFile ();
+        }
+    }
+    public void newFile () {
+        switch (promptToSave()) {
+            case 0:
+                saveFile();
+                break;
+            case 1:
+                break;
+            case 2:
+                return;
+        };
+        logic.clear();
+    }
+    public int promptToSave () {
+        if (!logic.hasUnsavedChanges()) return 1;
+        return JOptionPane.showOptionDialog(this,
+                "Would you like to save file?",
+                "Save file?",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                null,
+                null);
+    }
+
+    public class SaveAction extends AbstractAction {
+        public SaveAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Save");
+            String desc =  "Save image to disk";
+            int mnemonic = KeyEvent.VK_S;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control S");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/save.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            saveFile ();
+        }
+    }
+    public void saveFile () {
+        try {
+            if (logic.getCurrentFile() == null) {
+                saveFileAs();
+                return;
+            }
+            logic.saveToFile(logic.getCurrentFile());
+            //statusBar.setText("Saved");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to save.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public class SaveAsAction extends AbstractAction {
+        public SaveAsAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Save As...");
+            String desc =  "Save field to disk";
+            int mnemonic = KeyEvent.VK_A;
+            KeyStroke keyStroke = null;
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            //putValue(MNEMONIC_KEY, mnemonic);
+        }
+        public void actionPerformed(ActionEvent e) {
+            saveFileAs ();
+        }
+    }
+    public void saveFileAs () {
+        File f = FileUtils.getSaveFileName(this, "txt", "Text files");
+        if (f == null)
+            return;
+        else {
+            try {
+                logic.saveToFile(f);
+            } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to save.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public class ExitAction extends AbstractAction {
+        public ExitAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Exit");
+            String desc =  "Quit program and return to desktop";
+            int mnemonic = KeyEvent.VK_X;
+            KeyStroke keyStroke = null;
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/exit.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            exit ();
+        }
+    }
+    public void exit () {
+        AppWindow window = this;
+        //dispose();
+        dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+    }
+
     public class OpenAction extends AbstractAction {
         public OpenAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("Open");
@@ -113,12 +303,13 @@ public class AppWindow extends JFrame {
         File f = FileUtils.getOpenFileName(this, "bmp", "Bitmap Image");
         if (f == null) return;
         try {
-            loadBMP(f);
+            logic.loadBMP(f);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Bad file format.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
         setCurrentFile(f);
     }

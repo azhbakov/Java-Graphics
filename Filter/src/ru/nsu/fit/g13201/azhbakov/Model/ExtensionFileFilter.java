@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov;
+package ru.nsu.fit.g13201.azhbakov.Model;
 
 import javax.swing.filechooser.FileFilter;
 import java.io.File;

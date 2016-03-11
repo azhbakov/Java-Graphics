@@ -1,10 +1,6 @@
 package ru.nsu.fit.g13201.azhbakov;
 
-import ru.nsu.fit.g13201.azhbakov.BMP.BMPReader;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.io.File;
+import ru.nsu.fit.g13201.azhbakov.Model.Logic;
 
 /**
  * Created by marting422 on 09.03.2016.
@@ -12,7 +8,8 @@ import java.io.File;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        AppWindow appWindow = new AppWindow();
+        Logic logic = new Logic();
+        AppWindow appWindow = new AppWindow(logic);
         /*JFrame frame = new JFrame();
         JLabel label = new JLabel(new ImageIcon(ImageIO.read(new File("Filter/Data/azaza.bmp"))));
         frame.add(label);

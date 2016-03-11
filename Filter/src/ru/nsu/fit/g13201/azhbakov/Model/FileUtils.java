@@ -1,4 +1,6 @@
-package ru.nsu.fit.g13201.azhbakov;
+package ru.nsu.fit.g13201.azhbakov.Model;
+
+import ru.nsu.fit.g13201.azhbakov.AppWindow;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

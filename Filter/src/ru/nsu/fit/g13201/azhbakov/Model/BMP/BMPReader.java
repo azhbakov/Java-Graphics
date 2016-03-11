@@ -1,6 +1,5 @@
-package ru.nsu.fit.g13201.azhbakov.BMP;
+package ru.nsu.fit.g13201.azhbakov.Model.BMP;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;

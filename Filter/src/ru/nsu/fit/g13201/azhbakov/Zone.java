@@ -7,33 +7,36 @@ import java.awt.*;
  * Created by marting422 on 09.03.2016.
  */
 public class Zone extends JPanel {
-    JLabel zoneName;
+    //JLabel zoneName;
     Dimension dimension;
+    JPanel content;
     int border;
 
-    public Zone(String name, Dimension dimension, int border) {
+    public Zone(Dimension dimension, int border) {
         super();
         this.dimension = new Dimension(dimension.width+border, dimension.height+border);
         this.border = border;
-        setMaximumSize(this.dimension);
+
         setPreferredSize(this.dimension);
         setBorder(BorderFactory.createLineBorder(Color.black));
-        setLayout(new FlowLayout(FlowLayout.LEFT, border, border));
+        setLayout(new BorderLayout(border, border));
 
-        if (name != null) {
-            zoneName = new JLabel(name);
-        }
+        content = new JPanel();
+        content.setPreferredSize(dimension);
+        content.setLayout(new FlowLayout(FlowLayout.LEFT));
+        super.add(content, BorderLayout.CENTER);
+
+//        if (name != null) {
+//            zoneName = new JLabel(name);
+//        }
+//        add((Component) null);
     }
 
     @Override
     public Component add (Component component) {
-        removeAll();
+        content.removeAll();
         if (component != null) {
-            super.add(component);
-        } else {
-            if (zoneName != null) {
-                super.add(zoneName);
-            }
+            content.add(component);
         }
         validate();
         return component;

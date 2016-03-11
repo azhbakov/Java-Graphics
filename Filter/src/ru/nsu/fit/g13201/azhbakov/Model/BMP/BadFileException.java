@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov.BMP;
+package ru.nsu.fit.g13201.azhbakov.Model.BMP;
 
 /**
  * Created by marting422 on 10.03.2016.
