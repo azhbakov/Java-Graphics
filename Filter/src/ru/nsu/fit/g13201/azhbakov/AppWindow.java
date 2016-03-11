@@ -78,8 +78,20 @@ public class AppWindow extends JFrame implements Observer {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                if (labelA.getIcon() != null)
-                    System.out.println("PRESSED");
+                if (labelA.getIcon() != null) {
+                    //System.out.println("PRESSED");
+                    logic.selectArea(e.getX(), e.getY());
+                }
+            }
+        });
+        labelA.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                if (labelA.getIcon() != null) {
+                    //System.out.println("PRESSED");
+                    logic.selectArea(e.getX(), e.getY());
+                }
             }
         });
         zoneA.add(labelA);
@@ -138,6 +150,7 @@ public class AppWindow extends JFrame implements Observer {
 
     public void update (Observable observable, Object object) {
         setCurrentFile(logic.getCurrentFile());
+        zoneA.setRect(logic.getFrameLeft(), logic.getFrameRight(), logic.getFrameUp(), logic.getFrameBottom());
 
         if (logic.getImageA() == null) {
             labelA.setIcon(null);
@@ -172,7 +185,7 @@ public class AppWindow extends JFrame implements Observer {
         labelC.revalidate();
         labelC.repaint();
 
-        System.out.println("UPDATED");
+        //System.out.println("UPDATED");
     }
 
     //

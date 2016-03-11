@@ -9,22 +9,24 @@ import java.awt.*;
 public class Zone extends JPanel {
     //JLabel zoneName;
     Dimension dimension;
-    JPanel content;
+    PaintArea content;
     int border;
 
     public Zone(Dimension dimension, int border) {
         super();
-        this.dimension = new Dimension(dimension.width+border, dimension.height+border);
+        this.dimension = new Dimension(dimension.width+2*border+1, dimension.height+2*border+1);
         this.border = border;
 
         setPreferredSize(this.dimension);
         setBorder(BorderFactory.createLineBorder(Color.black));
-        setLayout(new BorderLayout(border, border));
+//        BoxLayout boxLayout = new BoxLayout(this, BoxLayout.LINE_AXIS);
+        setLayout(new FlowLayout(FlowLayout.LEADING, border, border));
+//        super.add(Box.createRigidArea(new Dimension(border,border)));
 
-        content = new JPanel();
-        content.setPreferredSize(dimension);
-        content.setLayout(new FlowLayout(FlowLayout.LEFT));
-        super.add(content, BorderLayout.CENTER);
+
+        content = new PaintArea();
+        content.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
+        super.add(content);
 
 //        if (name != null) {
 //            zoneName = new JLabel(name);
@@ -37,9 +39,14 @@ public class Zone extends JPanel {
         content.removeAll();
         if (component != null) {
             content.add(component);
+            //super.add(component);
         }
         validate();
         return component;
+    }
+
+    public void setRect (int left, int right, int up, int bottom) {
+        content.setRect(left, right, up, bottom);
     }
 
 }

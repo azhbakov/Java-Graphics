@@ -26,34 +26,82 @@ public class Logic extends Observable {
     BufferedImage source;
     BufferedImage imageA, imageB, imageC;
 
+    int frameLeft, frameRight, frameUp, frameBottom;
+
     public Logic () {
 
     }
 
     public void loadBMP (File f) throws IOException, BadFileException {
         BufferedImage image = BMPReader.readBMP(f);
+        BufferedImage mini = null;
         if (image == null) {
             throw new BadFileException();
         }
-        source = image;
         try {
-            if (source.getWidth() > zoneSize.width || source.getHeight() > zoneSize.height) {
-                if (source.getWidth() > source.getHeight()) {
-                    imageA = Downscale.downscale(source, zoneSize.width,
-                            zoneSize.width * source.getHeight()/source.getWidth());
+            if (image.getWidth() > zoneSize.width || image.getHeight() > zoneSize.height) {
+                if (image.getWidth() > image.getHeight()) {
+                    mini = Downscale.downscale(image, zoneSize.width,
+                            zoneSize.width * image.getHeight()/image.getWidth());
                 } else {
-                    imageA = Downscale.downscale(source, zoneSize.height * source.getWidth()/source.getHeight(),
+                    mini = Downscale.downscale(image, zoneSize.height * image.getWidth()/image.getHeight(),
                             zoneSize.height);
                 }
             } else {
-                imageA = source;
+                mini = image;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        hasUnsavedChanges = false;
+        clear();
         currentFile = f;
+        source = image;
+        imageA = mini;
 
+        setChanged();
+        notifyObservers();
+    }
+
+    public void selectArea (int x, int y) {
+        int xs = (int)((float)x/imageA.getWidth()*source.getWidth());
+        int ys = (int)((float)y/imageA.getHeight()*source.getHeight());
+        int left, right, up, bottom;
+
+        if (source.getWidth() <= zoneSize.width) { // <?
+            left = 0;
+            right = source.getWidth()-1;
+        } else {
+            if (xs <= zoneSize.width/2) { // right will not overlap
+                left = xs - zoneSize.width/2;
+                if (left < 0) left = 0;
+                right = left + zoneSize.width;
+            } else { // left will not overlap
+                right = xs + zoneSize.width/2;
+                if (right >= source.getWidth()) right = source.getWidth()-1;
+                left = right - zoneSize.width;
+            }
+        }
+
+        if (source.getHeight() <= zoneSize.getHeight()) { // <?
+            bottom = 0;
+            up = source.getHeight()-1;
+        } else {
+            if (ys <= zoneSize.height/2) { // up will not overlap
+                bottom = ys - zoneSize.height/2;
+                if (bottom < 0) bottom = 0;
+                up = bottom + zoneSize.height;
+            } else { // bottom will not overlap
+                up = ys + zoneSize.height/2;
+                if (up >= source.getHeight()) up = source.getHeight()-1;
+                bottom = up - zoneSize.height;
+            }
+        }
+        //System.out.println("left == " + left + " right == " + right + " bottom == " + bottom + " up == " + up);
+
+        frameBottom = (int)((float)bottom/source.getHeight()*imageA.getHeight());
+        frameLeft = (int)((float)left/source.getWidth()*imageA.getWidth());
+        frameRight = (int)((float)right/source.getWidth()*imageA.getWidth());
+        frameUp = (int)((float)up/source.getHeight()*imageA.getHeight());
         setChanged();
         notifyObservers();
     }
@@ -73,6 +121,7 @@ public class Logic extends Observable {
         imageA = null;
         imageB = null;
         imageC = null;
+        frameUp = frameBottom = frameLeft = frameRight = 0;
         setChanged();
         notifyObservers();
     }
@@ -115,5 +164,21 @@ public class Logic extends Observable {
 
     public boolean hasUnsavedChanges() {
         return hasUnsavedChanges;
+    }
+
+    public int getFrameLeft() {
+        return frameLeft;
+    }
+
+    public int getFrameRight() {
+        return frameRight;
+    }
+
+    public int getFrameUp() {
+        return frameUp;
+    }
+
+    public int getFrameBottom() {
+        return frameBottom;
     }
 }
