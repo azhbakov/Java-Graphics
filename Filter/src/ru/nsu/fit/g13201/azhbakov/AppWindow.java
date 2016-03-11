@@ -33,6 +33,19 @@ public class AppWindow extends JFrame implements Observer {
         super ("Filter");
         this.logic = logic;
         logic.addObserver(this);
+
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                if (2 == promptToSave()) {
+                    return;
+                }
+                System.exit(0);
+            }
+        });
+
         initZones();
         initActions();
         initToolbar ();
@@ -59,24 +72,25 @@ public class AppWindow extends JFrame implements Observer {
         zoneC = new Zone(logic.zoneSize, logic.border);
 
         imageA = new ImageIcon();
-        labelA = new JLabel(imageA);
+        labelA = new JLabel();
         labelA.setText("Zone A");
         labelA.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-
+                if (labelA.getIcon() != null)
+                    System.out.println("PRESSED");
             }
         });
         zoneA.add(labelA);
 
         imageB = new ImageIcon();
-        labelB = new JLabel(imageB);
+        labelB = new JLabel();
         labelB.setText("Zone B");
         zoneB.add(labelB);
 
         imageC = new ImageIcon();
-        labelC = new JLabel(imageC);
+        labelC = new JLabel();
         labelC.setText("Zone C");
         zoneC.add(labelC);
 
