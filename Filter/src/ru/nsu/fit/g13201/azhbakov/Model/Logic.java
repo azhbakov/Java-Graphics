@@ -3,10 +3,7 @@ package ru.nsu.fit.g13201.azhbakov.Model;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +23,7 @@ public class Logic extends Observable {
     BufferedImage source;
     BufferedImage imageA, imageB, imageC;
 
+    int sourceLeft, sourceRight, sourceUp, sourceBottom;
     int frameLeft, frameRight, frameUp, frameBottom;
 
     public Logic () {
@@ -34,6 +32,7 @@ public class Logic extends Observable {
 
     public void loadBMP (File f) throws IOException, BadFileException {
         BufferedImage image = BMPReader.readBMP(f);
+        //System.out.println("LOADED");
         BufferedImage mini = null;
         if (image == null) {
             throw new BadFileException();
@@ -53,6 +52,7 @@ public class Logic extends Observable {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        //System.out.println("SCALED");
         clear();
         currentFile = f;
         source = image;
@@ -98,16 +98,51 @@ public class Logic extends Observable {
         }
         //System.out.println("left == " + left + " right == " + right + " bottom == " + bottom + " up == " + up);
 
+        sourceBottom = bottom;
+        sourceUp = up;
+        sourceLeft = left;
+        sourceRight = right;
+
         frameBottom = (int)((float)bottom/source.getHeight()*imageA.getHeight());
         frameLeft = (int)((float)left/source.getWidth()*imageA.getWidth());
         frameRight = (int)((float)right/source.getWidth()*imageA.getWidth());
         frameUp = (int)((float)up/source.getHeight()*imageA.getHeight());
+        AtoB();
+        setChanged();
+        notifyObservers();
+    }
+
+    public void BtoC () {
+        if (imageB == null) return;
+        if (imageC == null) imageC = new BufferedImage(imageB.getWidth(), imageB.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        for (int i = 0; i < imageB.getWidth(); i++) {
+            for (int j = 0; j < imageB.getHeight(); j++) {
+                imageC.setRGB(i, j, imageB.getRGB(i, j));
+            }
+        }
+        setChanged();
+        notifyObservers();
+    }
+
+    public void AtoB () {
+        imageB = new BufferedImage(sourceRight - sourceLeft, sourceUp - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
+        for (int i = 0; i < sourceRight - sourceLeft; i++) {
+            for (int j = 0; j < sourceUp - sourceBottom; j++) {
+                imageB.setRGB(i, j, source.getRGB(sourceLeft + i, sourceBottom + j));
+            }
+        }
+        setChanged();
+        notifyObservers();
+    }
+
+    public void grayscale () {
+        if (imageC == null) return;
+        Grayscale.grayscale(imageC);
         setChanged();
         notifyObservers();
     }
 
     public File saveToFile(File f) throws IOException {
-
         currentFile = f;
         hasUnsavedChanges = false;
         setChanged();
@@ -149,10 +184,6 @@ public class Logic extends Observable {
     public BufferedImage getImageB() {
         return imageB;
     }
-
-//    public void setImageB(BufferedImage imageB) {
-//        this.imageB = imageB;
-//    }
 
     public BufferedImage getImageC() {
         return imageC;

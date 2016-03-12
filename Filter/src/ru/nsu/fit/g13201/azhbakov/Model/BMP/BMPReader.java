@@ -116,24 +116,54 @@ public class BMPReader {
         return bih;
     }
 
-    private static Color[] read24Bitmap (DataInputStream reader, int width, int heigth) throws IOException {
+//    private static Color[] read24Bitmap (DataInputStream reader, int width, int heigth) throws IOException {
+//        byte blue, green, red;
+//        Color[] colors = new Color[width*heigth];
+//        ByteBuffer buffer = ByteBuffer.allocate(1+1+1);
+//        //int extraBytes = width % 4;
+//        //byte[] ar = new byte[width*heigth];
+//        //reader.read(ar, 0, width*heigth);
+//        for (int j = heigth-1; j >= 0; j--) {
+//            for (int i = 0; i < width; i++) {
+//                buffer.put(0, reader.readByte());
+//                buffer.put(1, reader.readByte());
+//                buffer.put(2, reader.readByte());
+//                buffer.order(ByteOrder.LITTLE_ENDIAN);
+//
+//                blue = buffer.get(0);
+//                green = buffer.get(1);
+//                red = buffer.get(2);
+//                colors[j*width+i] = new Color(Byte.toUnsignedInt(red), Byte.toUnsignedInt(green), Byte.toUnsignedInt(blue));
+//            }
+//            reader.skipBytes(width % 4);
+//        }
+//        return colors;
+//    }
+    private static Color[] read24Bitmap (DataInputStream reader, int width, int height) throws IOException {
         byte blue, green, red;
-        Color[] colors = new Color[width*heigth];
-        ByteBuffer buffer = ByteBuffer.allocate(1+1+1);
-        int extraBytes = width % 4;
-        for (int j = heigth-1; j >= 0; j--) {
-            for (int i = 0; i < width; i++) {
-                buffer.put(0, reader.readByte());
-                buffer.put(1, reader.readByte());
-                buffer.put(2, reader.readByte());
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
+        Color[] colors = new Color[width*height];
+        ByteBuffer buffer = ByteBuffer.allocate((width*3+(width % 4))*height);
 
-                blue = buffer.get(0);
-                green = buffer.get(1);
-                red = buffer.get(2);
+        reader.read(buffer.array(), 0, (width*3+(width % 4))*height);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        //int extraBytes = width % 4;
+        //byte[] ar = new byte[width*heigth];
+        //reader.read(ar, 0, width*heigth);
+        int n = 0;
+        for (int j = height-1; j >= 0; j--) {
+            for (int i = 0; i < width; i++) {
+                //buffer.put(0, reader.readByte());
+                //buffer.put(1, reader.readByte());
+                //buffer.put(2, reader.readByte());
+                //buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+                blue = buffer.get(n); n++;
+                green = buffer.get(n); n++;
+                red = buffer.get(n); n++;
                 colors[j*width+i] = new Color(Byte.toUnsignedInt(red), Byte.toUnsignedInt(green), Byte.toUnsignedInt(blue));
             }
-            reader.skipBytes(width % 4);
+            //reader.skipBytes(width % 4);
+            n = n + width % 4;
         }
         return colors;
     }

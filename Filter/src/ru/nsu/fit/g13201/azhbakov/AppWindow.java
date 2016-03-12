@@ -28,6 +28,7 @@ public class AppWindow extends JFrame implements Observer {
     Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
+    Action btocAction, grayscaleAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -64,6 +65,7 @@ public class AppWindow extends JFrame implements Observer {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        update(logic, null);
     }
 
     private void initZones () {
@@ -116,6 +118,9 @@ public class AppWindow extends JFrame implements Observer {
         saveAction = new SaveAction();
         saveAsAction = new SaveAsAction();
         exitAction = new ExitAction();
+
+        btocAction = new BtoCAction();
+        grayscaleAction = new GrayscaleAction();
     }
 
     private void initToolbar () {
@@ -123,6 +128,8 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(newAction, false),
                 new ToolbarContent(openAction, false),
                 new ToolbarContent(saveAction, true),
+                new ToolbarContent(btocAction, false),
+                new ToolbarContent(grayscaleAction, false)
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -151,6 +158,9 @@ public class AppWindow extends JFrame implements Observer {
     public void update (Observable observable, Object object) {
         setCurrentFile(logic.getCurrentFile());
         zoneA.setRect(logic.getFrameLeft(), logic.getFrameRight(), logic.getFrameUp(), logic.getFrameBottom());
+        checkAActions();
+        checkBActions();
+        checkCActions();
 
         if (logic.getImageA() == null) {
             labelA.setIcon(null);
@@ -186,6 +196,35 @@ public class AppWindow extends JFrame implements Observer {
         labelC.repaint();
 
         //System.out.println("UPDATED");
+    }
+
+    private void checkAActions () {
+        boolean enabled;
+        if (logic.getImageA() != null) {
+            enabled = true;
+        } else {
+            enabled = false;
+        }
+        saveAction.setEnabled(enabled);
+        saveAsAction.setEnabled(enabled);
+    }
+    private void checkBActions () {
+        boolean enabled;
+        if (logic.getImageB() != null) {
+            enabled = true;
+        } else {
+            enabled = false;
+        }
+        btocAction.setEnabled(enabled);
+    }
+    private void checkCActions () {
+        boolean enabled;
+        if (logic.getImageC() != null) {
+            enabled = true;
+        } else {
+            enabled = false;
+        }
+        grayscaleAction.setEnabled(enabled);
     }
 
     //
@@ -339,5 +378,37 @@ public class AppWindow extends JFrame implements Observer {
             ex.printStackTrace();
         }
         setCurrentFile(f);
+    }
+
+    public class BtoCAction extends AbstractAction {
+        public BtoCAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("B to C");
+            String desc =  "Copy image in zone B to zone C";
+            int mnemonic = KeyEvent.VK_O;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control C");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/step.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.BtoC();
+        }
+    }
+
+    public class GrayscaleAction extends AbstractAction {
+        public GrayscaleAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Grayscale");
+            String desc =  "Make image in zone C grayscaled";
+            int mnemonic = KeyEvent.VK_O;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control G");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.grayscale();
+        }
     }
 }
