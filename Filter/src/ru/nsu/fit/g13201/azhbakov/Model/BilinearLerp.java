@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov;
+package ru.nsu.fit.g13201.azhbakov.Model;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

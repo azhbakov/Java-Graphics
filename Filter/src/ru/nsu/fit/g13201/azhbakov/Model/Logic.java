@@ -1,6 +1,5 @@
 package ru.nsu.fit.g13201.azhbakov.Model;
 
-import ru.nsu.fit.g13201.azhbakov.BilinearLerp;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
 
