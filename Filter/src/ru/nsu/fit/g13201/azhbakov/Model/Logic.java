@@ -1,5 +1,6 @@
 package ru.nsu.fit.g13201.azhbakov.Model;
 
+import ru.nsu.fit.g13201.azhbakov.BilinearLerp;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
 
@@ -138,6 +139,20 @@ public class Logic extends Observable {
     public void grayscale () {
         if (imageC == null) return;
         Grayscale.grayscale(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void negative () {
+        if (imageC == null) return;
+        Negative.negative(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void bilinearLerp () {
+        if (imageC == null) return;
+        imageC = BilinearLerp.zoomX2(imageC);
         setChanged();
         notifyObservers();
     }

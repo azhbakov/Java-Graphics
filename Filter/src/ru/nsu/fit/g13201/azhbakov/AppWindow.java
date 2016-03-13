@@ -28,7 +28,7 @@ public class AppWindow extends JFrame implements Observer {
     Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
-    Action btocAction, grayscaleAction;
+    Action btocAction, grayscaleAction, negativeAction, lerpAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -121,6 +121,8 @@ public class AppWindow extends JFrame implements Observer {
 
         btocAction = new BtoCAction();
         grayscaleAction = new GrayscaleAction();
+        negativeAction = new NegativeAction();
+        lerpAction = new LerpAction();
     }
 
     private void initToolbar () {
@@ -129,7 +131,9 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(openAction, false),
                 new ToolbarContent(saveAction, true),
                 new ToolbarContent(btocAction, false),
-                new ToolbarContent(grayscaleAction, false)
+                new ToolbarContent(grayscaleAction, false),
+                new ToolbarContent(negativeAction, false),
+                new ToolbarContent(lerpAction, false)
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -225,6 +229,8 @@ public class AppWindow extends JFrame implements Observer {
             enabled = false;
         }
         grayscaleAction.setEnabled(enabled);
+        negativeAction.setEnabled(enabled);
+        lerpAction.setEnabled(enabled);
     }
 
     //
@@ -409,6 +415,38 @@ public class AppWindow extends JFrame implements Observer {
         }
         public void actionPerformed(ActionEvent e) {
             logic.grayscale();
+        }
+    }
+
+    public class NegativeAction extends AbstractAction {
+        public NegativeAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Negative");
+            String desc =  "Make image in zone C negative";
+            int mnemonic = KeyEvent.VK_N;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control N");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.negative();
+        }
+    }
+
+    public class LerpAction extends AbstractAction {
+        public LerpAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Lerp");
+            String desc =  "Zoom image B center";
+            int mnemonic = KeyEvent.VK_L;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control L");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.bilinearLerp();
         }
     }
 }
