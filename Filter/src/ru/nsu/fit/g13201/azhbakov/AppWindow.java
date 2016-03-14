@@ -28,7 +28,7 @@ public class AppWindow extends JFrame implements Observer {
     Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
-    Action btocAction, grayscaleAction, negativeAction, lerpAction;
+    Action btocAction, grayscaleAction, negativeAction, lerpAction, ditheringAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -123,6 +123,7 @@ public class AppWindow extends JFrame implements Observer {
         grayscaleAction = new GrayscaleAction();
         negativeAction = new NegativeAction();
         lerpAction = new LerpAction();
+        ditheringAction = new DitheringAction();
     }
 
     private void initToolbar () {
@@ -133,7 +134,8 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(btocAction, false),
                 new ToolbarContent(grayscaleAction, false),
                 new ToolbarContent(negativeAction, false),
-                new ToolbarContent(lerpAction, false)
+                new ToolbarContent(lerpAction, false),
+                new ToolbarContent(ditheringAction, false)
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -231,6 +233,7 @@ public class AppWindow extends JFrame implements Observer {
         grayscaleAction.setEnabled(enabled);
         negativeAction.setEnabled(enabled);
         lerpAction.setEnabled(enabled);
+        ditheringAction.setEnabled(enabled);
     }
 
     //
@@ -447,6 +450,22 @@ public class AppWindow extends JFrame implements Observer {
         }
         public void actionPerformed(ActionEvent e) {
             logic.bilinearLerp();
+        }
+    }
+
+    public class DitheringAction extends AbstractAction {
+        public DitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Dithering");
+            String desc =  "Apply dithering";
+            int mnemonic = KeyEvent.VK_D;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control D");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.dithering();
         }
     }
 }

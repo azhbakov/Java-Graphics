@@ -156,6 +156,17 @@ public class Logic extends Observable {
         notifyObservers();
     }
 
+    public void dithering () {
+        if (imageC == null) return;
+        int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
+//        for (int i = 0; i < 25; i++) {
+//            newc[i] = 10 * i;
+//        }
+        imageC = Dithering.FloydSteinberg(imageC, newc, newc, newc);
+        setChanged();
+        notifyObservers();
+    }
+
     public File saveToFile(File f) throws IOException {
         currentFile = f;
         hasUnsavedChanges = false;
