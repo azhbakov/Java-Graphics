@@ -144,7 +144,7 @@ public class Game extends Observable {
                 Cell c = field.get(y).get(x);
                 float impact = impacts.get(y).get(x).floatValue();
                 if (field.get(y).get(x).getState()) { // cell is alive
-                    if (impact <= LIVE_BEGIN || LIVE_END <= impact) c.kill();
+                    if (impact < LIVE_BEGIN || LIVE_END < impact) c.kill();
                 } else { // dead
                     if (BIRTH_BEGIN <= impact && impact <= BIRTH_END) c.liven();
                 }

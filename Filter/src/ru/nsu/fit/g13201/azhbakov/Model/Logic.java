@@ -124,6 +124,18 @@ public class Logic extends Observable {
         notifyObservers();
     }
 
+    public void CtoB () {
+        if (imageB == null || imageC == null) return;
+        //if (imageC == null) imageB = new BufferedImage(imageB.getWidth(), imageB.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        for (int i = 0; i < imageC.getWidth(); i++) {
+            for (int j = 0; j < imageC.getHeight(); j++) {
+                imageB.setRGB(i, j, imageC.getRGB(i, j));
+            }
+        }
+        setChanged();
+        notifyObservers();
+    }
+
     public void AtoB () {
         imageB = new BufferedImage(sourceRight - sourceLeft, sourceUp - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
         for (int i = 0; i < sourceRight - sourceLeft; i++) {
@@ -136,6 +148,7 @@ public class Logic extends Observable {
     }
 
     public void grayscale () {
+        BtoC();
         if (imageC == null) return;
         Grayscale.grayscale(imageC);
         setChanged();
@@ -143,6 +156,7 @@ public class Logic extends Observable {
     }
 
     public void negative () {
+        BtoC();
         if (imageC == null) return;
         Negative.negative(imageC);
         setChanged();
@@ -150,19 +164,33 @@ public class Logic extends Observable {
     }
 
     public void bilinearLerp () {
+        BtoC();
         if (imageC == null) return;
         imageC = BilinearLerp.zoomX2(imageC);
         setChanged();
         notifyObservers();
     }
 
-    public void dithering () {
+    public void ditheringFloyd () {
+        BtoC();
         if (imageC == null) return;
         int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
 //        for (int i = 0; i < 25; i++) {
 //            newc[i] = 10 * i;
 //        }
         imageC = Dithering.FloydSteinberg(imageC, newc, newc, newc);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void ditheringOrdered () {
+        BtoC();
+        if (imageC == null) return;
+        int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
+//        for (int i = 0; i < 25; i++) {
+//            newc[i] = 10 * i;
+//        }
+        imageC = Dithering.orderedDithering(imageC, newc, newc, newc);
         setChanged();
         notifyObservers();
     }

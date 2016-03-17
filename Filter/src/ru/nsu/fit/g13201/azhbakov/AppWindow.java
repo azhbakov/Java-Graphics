@@ -28,7 +28,8 @@ public class AppWindow extends JFrame implements Observer {
     Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
-    Action btocAction, grayscaleAction, negativeAction, lerpAction, ditheringAction;
+    Action btocAction, ctobAction;
+    Action grayscaleAction, negativeAction, lerpAction, floydDitheringAction, orderedDitheringAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -120,10 +121,13 @@ public class AppWindow extends JFrame implements Observer {
         exitAction = new ExitAction();
 
         btocAction = new BtoCAction();
+        ctobAction = new CtoBAction();
+
         grayscaleAction = new GrayscaleAction();
         negativeAction = new NegativeAction();
         lerpAction = new LerpAction();
-        ditheringAction = new DitheringAction();
+        floydDitheringAction = new FloydDitheringAction();
+        orderedDitheringAction = new OrderedDitheringAction();
     }
 
     private void initToolbar () {
@@ -132,10 +136,12 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(openAction, false),
                 new ToolbarContent(saveAction, true),
                 new ToolbarContent(btocAction, false),
+                new ToolbarContent(ctobAction, false),
                 new ToolbarContent(grayscaleAction, false),
                 new ToolbarContent(negativeAction, false),
-                new ToolbarContent(lerpAction, false),
-                new ToolbarContent(ditheringAction, false)
+                new ToolbarContent(lerpAction, true),
+                new ToolbarContent(floydDitheringAction, false),
+                new ToolbarContent(orderedDitheringAction, true)
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -222,6 +228,11 @@ public class AppWindow extends JFrame implements Observer {
             enabled = false;
         }
         btocAction.setEnabled(enabled);
+        grayscaleAction.setEnabled(enabled);
+        negativeAction.setEnabled(enabled);
+        lerpAction.setEnabled(enabled);
+        floydDitheringAction.setEnabled(enabled);
+        orderedDitheringAction.setEnabled(enabled);
     }
     private void checkCActions () {
         boolean enabled;
@@ -230,10 +241,7 @@ public class AppWindow extends JFrame implements Observer {
         } else {
             enabled = false;
         }
-        grayscaleAction.setEnabled(enabled);
-        negativeAction.setEnabled(enabled);
-        lerpAction.setEnabled(enabled);
-        ditheringAction.setEnabled(enabled);
+        ctobAction.setEnabled(enabled);
     }
 
     //
@@ -405,6 +413,22 @@ public class AppWindow extends JFrame implements Observer {
         }
     }
 
+    public class CtoBAction extends AbstractAction {
+        public CtoBAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("C to B");
+            String desc =  "Copy image in zone C to zone B";
+            int mnemonic = KeyEvent.VK_B;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control B");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/step_back.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.CtoB();
+        }
+    }
+
     public class GrayscaleAction extends AbstractAction {
         public GrayscaleAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("Grayscale");
@@ -453,19 +477,35 @@ public class AppWindow extends JFrame implements Observer {
         }
     }
 
-    public class DitheringAction extends AbstractAction {
-        public DitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+    public class FloydDitheringAction extends AbstractAction {
+        public FloydDitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("Dithering");
-            String desc =  "Apply dithering";
-            int mnemonic = KeyEvent.VK_D;
-            KeyStroke keyStroke = KeyStroke.getKeyStroke("control D");
+            String desc =  "Apply Floyd-Steinberg dithering";
+            int mnemonic = KeyEvent.VK_Y;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control Y");
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
             putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.dithering();
+            logic.ditheringFloyd();
+        }
+    }
+
+    public class OrderedDitheringAction extends AbstractAction {
+        public OrderedDitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Dithering");
+            String desc =  "Apply ordered dithering";
+            int mnemonic = KeyEvent.VK_R;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.ditheringOrdered();
         }
     }
 }

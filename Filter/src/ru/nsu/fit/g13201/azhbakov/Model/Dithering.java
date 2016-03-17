@@ -76,15 +76,39 @@ public class Dithering {
     private static int trunc (int[] newc, int oldc) {
         int min = oldc, ind = 0;
         for (int i = 0; i < newc.length; i++) {
-//            if (Math.abs(oldc-newc[i]) < min) {
-//                min = Math.abs(oldc-newc[i]);
-//                ind = i;
-//            }
-            if (newc[i] < oldc && oldc-newc[i] < min) {
-                min = oldc - newc[i];
+            if (Math.abs(oldc-newc[i]) < min) {
+                min = Math.abs(oldc-newc[i]);
                 ind = i;
             }
+//            if (newc[i] < oldc && oldc-newc[i] < min) {
+//                min = oldc - newc[i];
+//                ind = i;
+//            }
         }
         return newc[ind];
+    }
+
+    public static BufferedImage orderedDithering (BufferedImage image, int[] reds, int[] greens, int[] blues) {
+        int matSize = 4;
+        int k = 1/(matSize*matSize + 1);
+        int[][] tMat = {{1,9,3,11},
+                        {13, 5, 15, 7},
+                        {4, 12, 2, 10},
+                        {16, 8, 14, 6}};
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                Color old = new Color(image.getRGB(x, y));
+                int red = old.getRed() + old.getRed() * tMat[x%4][y%4] * k;
+                int green = old.getGreen() + old.getRed() * tMat[x%4][y%4] * k;
+                int blue = old.getBlue() + old.getRed() * tMat[x%4][y%4] * k;
+
+                red = trunc(reds, red);
+                green = trunc(greens, green);
+                blue = trunc(blues, blue);
+
+                image.setRGB(x, y, new Color(red, green, blue).getRGB());
+            }
+        }
+        return image;
     }
 }
