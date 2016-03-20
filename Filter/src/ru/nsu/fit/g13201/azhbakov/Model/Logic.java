@@ -26,6 +26,10 @@ public class Logic extends Observable {
     int sourceLeft, sourceRight, sourceUp, sourceBottom;
     int frameLeft, frameRight, frameUp, frameBottom;
 
+    int sobelThreshold = 255;
+    int robertsThreshold = 255;
+
+
     public Logic () {
 
     }
@@ -191,6 +195,30 @@ public class Logic extends Observable {
 //            newc[i] = 10 * i;
 //        }
         imageC = Dithering.orderedDithering(imageC, newc, newc, newc);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void sobel () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = EdgeDetection.SobelFilter(imageC, sobelThreshold);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void roberts () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = EdgeDetection.RobertsFilter(imageC, robertsThreshold);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void smoothing () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = Smoothing.smooth(imageC);
         setChanged();
         notifyObservers();
     }

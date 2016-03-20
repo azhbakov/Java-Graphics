@@ -28,8 +28,10 @@ public class AppWindow extends JFrame implements Observer {
     Zone zoneC; JLabel labelC; ImageIcon imageC;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
-    Action btocAction, ctobAction;
-    Action grayscaleAction, negativeAction, lerpAction, floydDitheringAction, orderedDitheringAction;
+    Action atobAction, ctobAction;
+    Action grayscaleAction, negativeAction, lerpAction;
+    Action floydDitheringAction, orderedDitheringAction, sobelAction, robertsAction;
+    Action smoothAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -120,14 +122,19 @@ public class AppWindow extends JFrame implements Observer {
         saveAsAction = new SaveAsAction();
         exitAction = new ExitAction();
 
-        btocAction = new BtoCAction();
+        atobAction = new AtoBAction();
         ctobAction = new CtoBAction();
 
         grayscaleAction = new GrayscaleAction();
         negativeAction = new NegativeAction();
         lerpAction = new LerpAction();
+
         floydDitheringAction = new FloydDitheringAction();
         orderedDitheringAction = new OrderedDitheringAction();
+        sobelAction = new SobelAction();
+        robertsAction = new RobertsAction();
+
+        smoothAction = new SmoothAction();
     }
 
     private void initToolbar () {
@@ -135,13 +142,16 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(newAction, false),
                 new ToolbarContent(openAction, false),
                 new ToolbarContent(saveAction, true),
-                new ToolbarContent(btocAction, false),
+                new ToolbarContent(atobAction, false),
                 new ToolbarContent(ctobAction, false),
                 new ToolbarContent(grayscaleAction, false),
                 new ToolbarContent(negativeAction, false),
                 new ToolbarContent(lerpAction, true),
                 new ToolbarContent(floydDitheringAction, false),
-                new ToolbarContent(orderedDitheringAction, true)
+                new ToolbarContent(orderedDitheringAction, true),
+                new ToolbarContent(sobelAction, false),
+                new ToolbarContent(robertsAction, true),
+                new ToolbarContent(smoothAction, false)
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -227,12 +237,15 @@ public class AppWindow extends JFrame implements Observer {
         } else {
             enabled = false;
         }
-        btocAction.setEnabled(enabled);
+        atobAction.setEnabled(enabled);
         grayscaleAction.setEnabled(enabled);
         negativeAction.setEnabled(enabled);
         lerpAction.setEnabled(enabled);
         floydDitheringAction.setEnabled(enabled);
         orderedDitheringAction.setEnabled(enabled);
+        sobelAction.setEnabled(enabled);
+        robertsAction.setEnabled(enabled);
+        smoothAction.setEnabled(enabled);
     }
     private void checkCActions () {
         boolean enabled;
@@ -397,19 +410,19 @@ public class AppWindow extends JFrame implements Observer {
         setCurrentFile(f);
     }
 
-    public class BtoCAction extends AbstractAction {
-        public BtoCAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("B to C");
-            String desc =  "Copy image in zone B to zone C";
-            int mnemonic = KeyEvent.VK_O;
-            KeyStroke keyStroke = KeyStroke.getKeyStroke("control C");
+    public class AtoBAction extends AbstractAction {
+        public AtoBAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("A to B");
+            String desc =  "Copy image in zone A to zone B";
+            int mnemonic = KeyEvent.VK_A;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control A");
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
             putValue(SMALL_ICON, new ImageIcon("./Filter/icons/step.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.BtoC();
+            logic.AtoB();
         }
     }
 
@@ -506,6 +519,54 @@ public class AppWindow extends JFrame implements Observer {
         }
         public void actionPerformed(ActionEvent e) {
             logic.ditheringOrdered();
+        }
+    }
+
+    public class SobelAction extends AbstractAction {
+        public SobelAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Edge Detection: Sobel Filter");
+            String desc =  "Apply Sobel edge detection";
+            int mnemonic = KeyEvent.VK_B;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control B");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.sobel();
+        }
+    }
+
+    public class RobertsAction extends AbstractAction {
+        public RobertsAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Edge Detection: Roberts Filter");
+            String desc =  "Apply Roberts edge detection";
+            int mnemonic = KeyEvent.VK_R;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.roberts();
+        }
+    }
+
+    public class SmoothAction extends AbstractAction {
+        public SmoothAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Smoothing");
+            String desc =  "Apply smoothing with weighted median operator";
+            int mnemonic = KeyEvent.VK_H;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control H");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.smoothing();
         }
     }
 }
