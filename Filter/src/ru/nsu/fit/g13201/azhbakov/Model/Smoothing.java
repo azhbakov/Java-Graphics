@@ -26,15 +26,16 @@ public class Smoothing {
         int b = 0;
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-
-                if (x == 0 || x == image.getWidth()-1 || y == 0 || y == image.getHeight()-1) {
-                    res.setRGB(x, y, image.getRGB(x,y));
-                    continue;
-                }
-
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        Color col = new Color(image.getRGB(x+i, y+j));
+                        int t1 = x+i;
+                        int t2 = y+j;
+                        if (t1 < 0) t1 = 0;
+                        if (t1 >= image.getWidth()) t1 = image.getWidth()-1;
+                        if (t2 < 0) t2 = 0;
+                        if (t2 >= image.getHeight()) t2 = image.getHeight()-1;
+
+                        Color col = new Color(image.getRGB(t1, t2));
                         r += col.getRed() * op[i+1][j+1];
                         g += col.getGreen() * op[i+1][j+1];
                         b += col.getBlue() * op[i+1][j+1];

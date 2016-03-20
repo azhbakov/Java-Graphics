@@ -1,6 +1,7 @@
 package ru.nsu.fit.g13201.azhbakov.Model;
 
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
+import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPWriter;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
 
 import java.awt.*;
@@ -28,6 +29,7 @@ public class Logic extends Observable {
 
     int sobelThreshold = 255;
     int robertsThreshold = 255;
+    Boolean pixelize = false;
 
 
     public Logic () {
@@ -73,7 +75,7 @@ public class Logic extends Observable {
 
         if (source.getWidth() <= zoneSize.width) { // <?
             left = 0;
-            right = source.getWidth()-1;
+            right = source.getWidth();
         } else {
             if (xs <= zoneSize.width/2) { // right will not overlap
                 left = xs - zoneSize.width/2;
@@ -88,7 +90,7 @@ public class Logic extends Observable {
 
         if (source.getHeight() <= zoneSize.getHeight()) { // <?
             bottom = 0;
-            up = source.getHeight()-1;
+            up = source.getHeight();
         } else {
             if (ys <= zoneSize.height/2) { // up will not overlap
                 bottom = ys - zoneSize.height/2;
@@ -116,34 +118,41 @@ public class Logic extends Observable {
         notifyObservers();
     }
 
-    public void BtoC () {
-        if (imageB == null) return;
-        if (imageC == null) imageC = new BufferedImage(imageB.getWidth(), imageB.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        for (int i = 0; i < imageB.getWidth(); i++) {
-            for (int j = 0; j < imageB.getHeight(); j++) {
-                imageC.setRGB(i, j, imageB.getRGB(i, j));
-            }
-        }
-        setChanged();
-        notifyObservers();
-    }
+//    public void BtoC () {
+//        if (imageB == null) return;
+//        if (imageC == null) imageC = new BufferedImage(imageB.getWidth(), imageB.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+//        for (int i = 0; i < imageB.getWidth(); i++) {
+//            for (int j = 0; j < imageB.getHeight(); j++) {
+//                imageC.setRGB(i, j, imageB.getRGB(i, j));
+//            }
+//        }
+//        setChanged();
+//        notifyObservers();
+//    }
 
     public void CtoB () {
         if (imageB == null || imageC == null) return;
         //if (imageC == null) imageB = new BufferedImage(imageB.getWidth(), imageB.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        for (int i = 0; i < imageC.getWidth(); i++) {
-            for (int j = 0; j < imageC.getHeight(); j++) {
-                imageB.setRGB(i, j, imageC.getRGB(i, j));
+        BufferedImage source = imageC;
+        if (pixelize) {
+            source = Pixelize.unpixelize(imageC);
+        }
+        for (int i = 0; i < source.getWidth(); i++) {
+            for (int j = 0; j < source.getHeight(); j++) {
+                imageB.setRGB(i, j, source.getRGB(i, j));
             }
         }
+        pixelize = false;
         setChanged();
         notifyObservers();
     }
 
     public void AtoB () {
-        imageB = new BufferedImage(sourceRight+1 - sourceLeft, sourceUp+1 - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
-        for (int i = 0; i < sourceRight - sourceLeft+1; i++) {
-            for (int j = 0; j < sourceUp - sourceBottom+1; j++) {
+        if (imageB == null || (imageB.getWidth() != sourceRight - sourceLeft) || (imageB.getWidth() != sourceUp - sourceBottom)){
+            imageB = new BufferedImage(sourceRight - sourceLeft, sourceUp - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
+        }
+        for (int i = 0; i < sourceRight - sourceLeft; i++) {
+            for (int j = 0; j < sourceUp - sourceBottom; j++) {
                 imageB.setRGB(i, j, source.getRGB(sourceLeft + i, sourceBottom + j));
             }
         }
@@ -152,112 +161,160 @@ public class Logic extends Observable {
     }
 
     public void grayscale () {
-        BtoC();
-        if (imageC == null) return;
-        Grayscale.grayscale(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Grayscale.grayscale(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void negative () {
-        BtoC();
-        if (imageC == null) return;
-        Negative.negative(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Negative.negative(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void bilinearLerp () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = BilinearLerp.zoomX2(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = BilinearLerp.zoomX2(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void ditheringFloyd () {
-        BtoC();
-        if (imageC == null) return;
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
         int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
 //        for (int i = 0; i < 25; i++) {
 //            newc[i] = 10 * i;
 //        }
-        imageC = Dithering.FloydSteinberg(imageC, newc, newc, newc);
+        imageC = Dithering.FloydSteinberg(source, newc, newc, newc);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void ditheringOrdered () {
-        BtoC();
-        if (imageC == null) return;
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
         int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
 //        for (int i = 0; i < 25; i++) {
 //            newc[i] = 10 * i;
 //        }
-        imageC = Dithering.orderedDithering(imageC, newc, newc, newc);
+        imageC = Dithering.orderedDithering(source, newc, newc, newc);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void sobel () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = EdgeDetection.SobelFilter(imageC, sobelThreshold);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = EdgeDetection.SobelFilter(source, sobelThreshold);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void roberts () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = EdgeDetection.RobertsFilter(imageC, robertsThreshold);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = EdgeDetection.RobertsFilter(source, robertsThreshold);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void smoothing () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = Smoothing.smooth(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Smoothing.smooth(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void sharpening () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = Sharpening.sharpen(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Sharpening.sharpen(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void stamping () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = Stamping.stamp(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Stamping.stamp(source);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void aqua () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = Smoothing.smooth(imageC);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+//        imageC = Smoothing.smooth(imageC);
+//        imageC = Sharpening.sharpen(imageC);
+        imageC = Watercolor.watercolor(source);
         imageC = Sharpening.sharpen(imageC);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void rotate () {
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = Rotate.rotate(source, -20);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
     public void gamma () {
-        BtoC();
-        if (imageC == null) return;
-        imageC = GammaCorrection.gammaCorrection(imageC, 0.5f);
+        if (imageB == null) return;
+        BufferedImage source = imageB;
+        if (pixelize) source = Pixelize.pixelize(imageB);
+        imageC = GammaCorrection.gammaCorrection(source, 0.5f);
+        if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
     }
 
-    public File saveToFile(File f) throws IOException {
+    public void pixelize () {
+        pixelize = !pixelize;
+        if (pixelize == false) {
+            if (imageB != null) {
+                imageB = Pixelize.unpixelize(Pixelize.pixelize(imageB));
+            }
+        }
+        setChanged();
+        notifyObservers();
+    }
+
+    public File saveToFile(File f) throws IOException, BadFileException {
         currentFile = f;
+        BMPWriter.saveBMP (f, getImageB());
         hasUnsavedChanges = false;
         setChanged();
         notifyObservers();
@@ -270,6 +327,7 @@ public class Logic extends Observable {
         imageA = null;
         imageB = null;
         imageC = null;
+        pixelize = false;
         frameUp = frameBottom = frameLeft = frameRight = 0;
         setChanged();
         notifyObservers();
@@ -296,6 +354,7 @@ public class Logic extends Observable {
 //    }
 
     public BufferedImage getImageB() {
+        if (pixelize) return Pixelize.unpixelize(Pixelize.pixelize(imageB));
         return imageB;
     }
 
@@ -326,4 +385,6 @@ public class Logic extends Observable {
     public int getFrameBottom() {
         return frameBottom;
     }
+
+    public boolean isPixelized () {return pixelize;}
 }

@@ -3,6 +3,7 @@ package ru.nsu.fit.g13201.azhbakov;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
 import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
 import ru.nsu.fit.g13201.azhbakov.Model.Downscale;
+import ru.nsu.fit.g13201.azhbakov.Model.FastMenu;
 import ru.nsu.fit.g13201.azhbakov.Model.FileUtils;
 import ru.nsu.fit.g13201.azhbakov.Model.Logic;
 import ru.nsu.fit.g13201.azhbakov.ToolbarUtils.ToolbarContent;
@@ -22,16 +23,22 @@ import java.util.Observer;
  * Created by marting422 on 09.03.2016.
  */
 public class AppWindow extends JFrame implements Observer {
+    final String ABOUT = "Game of Life, Azhbakov Artem FIT 13201, 2016\n\nProgram designed to study graphical algoruthms, " +
+            ", as part of NSU CG course.";
+
     Logic logic;
     Zone zoneA; JLabel labelA; ImageIcon imageA;
     Zone zoneB; JLabel labelB; ImageIcon imageB;
     Zone zoneC; JLabel labelC; ImageIcon imageC;
+    FastMenu menuBar;
     // Actions
     Action newAction, openAction, saveAction, saveAsAction, exitAction;
     Action atobAction, ctobAction;
     Action grayscaleAction, negativeAction, lerpAction;
     Action floydDitheringAction, orderedDitheringAction, sobelAction, robertsAction;
-    Action smoothAction, sharpenAction, stampingAction, aquaAction, gammaAction;
+    Action smoothAction, sharpenAction, stampingAction, aquaAction;
+    Action gammaAction, rotateAction, pixelizeAction;
+    Action aboutAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -52,6 +59,7 @@ public class AppWindow extends JFrame implements Observer {
 
         initZones();
         initActions();
+        initMenu ();
         initToolbar ();
         initScrollPane ();
 
@@ -138,7 +146,13 @@ public class AppWindow extends JFrame implements Observer {
         sharpenAction = new SharpenAction();
         stampingAction = new StampingAction();
         aquaAction = new AquaAction();
+
         gammaAction = new GammaAction();
+        rotateAction = new RotateAction();
+
+        pixelizeAction = new PixelizeAction();
+
+        aboutAction = new AboutAction();
     }
 
     private void initToolbar () {
@@ -158,8 +172,11 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(smoothAction, false),
                 new ToolbarContent(sharpenAction, false),
                 new ToolbarContent(stampingAction, false),
-                new ToolbarContent(aquaAction, false),
+                new ToolbarContent(aquaAction, true),
                 new ToolbarContent(gammaAction, false),
+                new ToolbarContent(rotateAction, true),
+                new ToolbarContent(pixelizeAction, false),
+                new ToolbarContent(aboutAction, false),
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -175,6 +192,68 @@ public class AppWindow extends JFrame implements Observer {
 
         JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane);
+    }
+
+    private void initMenu () {
+        menuBar = new FastMenu();
+        setJMenuBar(menuBar);
+        try {
+            createFileMenu();
+            createEdgeDetectionMenu();
+            createColorMenu();
+            createImageMenu();
+            createHelpMenu();
+            menuBar.setVisible(true);
+        } catch (Exception ex) {
+            System.out.println("A");
+        }
+    }
+
+    private void createFileMenu () throws ClassNotFoundException, NoSuchMethodException {
+        menuBar.addMenu("File", null, KeyEvent.VK_F);
+        menuBar.addMenuItem(null, "File/New", newAction);
+        menuBar.addMenuItem(null, "File/Open", openAction);
+        menuBar.addMenuItem(null, "File/Save", saveAction);
+        menuBar.addMenuItem(null, "File/Save as...", saveAsAction);
+        menuBar.addMenuSeparator("File");
+        menuBar.addMenuItem(null, "File/Exit", exitAction);
+    }
+
+    private void createEdgeDetectionMenu () throws ClassNotFoundException, NoSuchMethodException {
+        menuBar.addMenu("Edge Detection", null, KeyEvent.VK_E);
+        menuBar.addMenuItem(null, "Edge Detection/Sobel Filter", sobelAction);
+        menuBar.addMenuItem(null, "Edge Detection/Roberts Filter", robertsAction);
+    }
+
+    private void createColorMenu () throws ClassNotFoundException, NoSuchMethodException {
+        menuBar.addMenu("Color", null, KeyEvent.VK_C);
+        menuBar.addMenuItem(null, "Color/Grayscale", grayscaleAction);
+        menuBar.addMenuItem(null, "Color/Negative", negativeAction);
+        menuBar.addMenuItem(null, "Color/Gamma correction", gammaAction);
+        menuBar.addMenuSeparator("Color");
+        menuBar.addMenuItem(null, "Color/Floyd-Steinberg dithering", floydDitheringAction);
+        menuBar.addMenuItem(null, "Color/Ordered dithering", orderedDitheringAction);
+    }
+
+    private void createImageMenu () throws ClassNotFoundException, NoSuchMethodException {
+        menuBar.addMenu("Image", null, KeyEvent.VK_I);
+        menuBar.addMenuItem(null, "Image/Zoom", lerpAction);
+        menuBar.addMenuItem(null, "Image/Rotate", rotateAction);
+        menuBar.addMenuSeparator("Image");
+        menuBar.addMenuItem(null, "Image/Blur", smoothAction);
+        menuBar.addMenuItem(null, "Image/Sharpen", sharpenAction);
+        menuBar.addMenuItem(null, "Image/Stamping", stampingAction);
+        menuBar.addMenuItem(null, "Image/Watercolor", aquaAction);
+        menuBar.addMenuSeparator("Image");
+        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem("Pixelize");
+        cbMenuItem.setState(logic.isPixelized());
+        menuBar.addMenuItem(cbMenuItem, "Image/Pixelize", pixelizeAction);
+    }
+
+    private void createHelpMenu () throws ClassNotFoundException, NoSuchMethodException {
+        // HELP
+        menuBar.addMenu("Help", null, KeyEvent.VK_H);
+        menuBar.addMenuItem(null, "Help/About...", aboutAction);
     }
 
     private void setCurrentFile (File f) {
@@ -235,8 +314,6 @@ public class AppWindow extends JFrame implements Observer {
         } else {
             enabled = false;
         }
-        saveAction.setEnabled(enabled);
-        saveAsAction.setEnabled(enabled);
     }
     private void checkBActions () {
         boolean enabled;
@@ -245,6 +322,8 @@ public class AppWindow extends JFrame implements Observer {
         } else {
             enabled = false;
         }
+        saveAction.setEnabled(enabled);
+        saveAsAction.setEnabled(enabled);
         atobAction.setEnabled(enabled);
         grayscaleAction.setEnabled(enabled);
         negativeAction.setEnabled(enabled);
@@ -258,6 +337,8 @@ public class AppWindow extends JFrame implements Observer {
         stampingAction.setEnabled(enabled);
         aquaAction.setEnabled(enabled);
         gammaAction.setEnabled(enabled);
+        rotateAction.setEnabled(enabled);
+        pixelizeAction.setEnabled(enabled);
     }
     private void checkCActions () {
         boolean enabled;
@@ -333,7 +414,8 @@ public class AppWindow extends JFrame implements Observer {
             }
             logic.saveToFile(logic.getCurrentFile());
             //statusBar.setText("Saved");
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     "Failed to save.",
                     "Error",
@@ -362,7 +444,8 @@ public class AppWindow extends JFrame implements Observer {
         else {
             try {
                 logic.saveToFile(f);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
+                ex.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     "Failed to save.",
                     "Error",
@@ -536,7 +619,7 @@ public class AppWindow extends JFrame implements Observer {
 
     public class SobelAction extends AbstractAction {
         public SobelAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("Edge Detection: Sobel Filter");
+            super("Sobel Filter");
             String desc =  "Apply Sobel edge detection";
             int mnemonic = KeyEvent.VK_B;
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control B");
@@ -552,7 +635,7 @@ public class AppWindow extends JFrame implements Observer {
 
     public class RobertsAction extends AbstractAction {
         public RobertsAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("Edge Detection: Roberts Filter");
+            super("Roberts Filter");
             String desc =  "Apply Roberts edge detection";
             int mnemonic = KeyEvent.VK_R;
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
@@ -568,10 +651,10 @@ public class AppWindow extends JFrame implements Observer {
 
     public class SmoothAction extends AbstractAction {
         public SmoothAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("Smoothing");
-            String desc =  "Apply smoothing with weighted median operator";
-            int mnemonic = KeyEvent.VK_H;
-            KeyStroke keyStroke = KeyStroke.getKeyStroke("control H");
+            super("Blur");
+            String desc =  "Apply blur";
+            int mnemonic = KeyEvent.VK_U;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control U");
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
@@ -617,7 +700,7 @@ public class AppWindow extends JFrame implements Observer {
     public class AquaAction extends AbstractAction {
         public AquaAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
             super("Aqua");
-            String desc =  "Apply aqua effect";
+            String desc =  "Apply watercolor effect";
             int mnemonic = KeyEvent.VK_Q;
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control Q");
             putValue(ACCELERATOR_KEY, keyStroke);
@@ -644,5 +727,57 @@ public class AppWindow extends JFrame implements Observer {
         public void actionPerformed(ActionEvent e) {
             logic.gamma();
         }
+    }
+
+    public class RotateAction extends AbstractAction {
+        public RotateAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Rotate");
+            String desc =  "Rotate image";
+            int mnemonic = KeyEvent.VK_R;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.rotate();
+        }
+    }
+
+    public class PixelizeAction extends AbstractAction {
+        public PixelizeAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Pixelize");
+            String desc =  "Pixelize image";
+            int mnemonic = KeyEvent.VK_Z;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control Z");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.pixelize();
+        }
+    }
+
+    public class AboutAction extends AbstractAction {
+        public AboutAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("About...");
+            String desc = "About this programm";
+            int mnemonic = KeyEvent.VK_A;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control A");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            showAbout ();
+        }
+    }
+    public void showAbout () {
+        JOptionPane.showMessageDialog (null, ABOUT, "About", JOptionPane.INFORMATION_MESSAGE);
     }
 }

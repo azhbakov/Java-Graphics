@@ -17,14 +17,20 @@ public class EdgeDetection {
             { 0, 0, 0},
             {-1,-2,-1}};
 
-        for (int y = 1; y < image.getHeight()-1; y++) {
-            for (int x = 1; x < image.getWidth()-1; x++) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
                 float gx = 0;
                 float gy = 0;
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        gx += getIntensity(image, x+i, y+j) * GX[i+1][j+1];
-                        gy += getIntensity(image, x+i, y+j) * GY[i+1][j+1];
+                        int t1 = x+i;
+                        int t2 = y+j;
+                        if (t1 < 0) t1 = 0;
+                        if (t1 >= image.getWidth()) t1 = image.getWidth()-1;
+                        if (t2 < 0) t2 = 0;
+                        if (t2 >= image.getHeight()) t2 = image.getHeight()-1;
+                        gx += getIntensity(image, t1, t2) * GX[i+1][j+1];
+                        gy += getIntensity(image, t1, t2) * GY[i+1][j+1];
                     }
                 }
                 int nc;
@@ -53,14 +59,20 @@ public class EdgeDetection {
         int GY[][]={{ 0, 1},
                 { -1, 0}};
 
-        for (int y = 1; y < image.getHeight()-1; y++) {
-            for (int x = 1; x < image.getWidth()-1; x++) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
                 float gx = 0;
                 float gy = 0;
                 for (int i = 0; i <= 1; i++) {
                     for (int j = 0; j <= 1; j++) {
-                        gx += getIntensity(image, x+i, y+j) * GX[i][j];
-                        gy += getIntensity(image, x+i, y+j) * GY[i][j];
+                        int t1 = x+i;
+                        int t2 = y+j;
+                        if (t1 < 0) t1 = 0;
+                        if (t1 >= image.getWidth()) t1 = image.getWidth()-1;
+                        if (t2 < 0) t2 = 0;
+                        if (t2 >= image.getHeight()) t2 = image.getHeight()-1;
+                        gx += getIntensity(image, t1, t2) * GX[i][j];
+                        gy += getIntensity(image, t1, t2) * GY[i][j];
                     }
                 }
                 int nc;
