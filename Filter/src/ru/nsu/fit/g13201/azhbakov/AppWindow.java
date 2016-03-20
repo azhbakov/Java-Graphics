@@ -31,7 +31,7 @@ public class AppWindow extends JFrame implements Observer {
     Action atobAction, ctobAction;
     Action grayscaleAction, negativeAction, lerpAction;
     Action floydDitheringAction, orderedDitheringAction, sobelAction, robertsAction;
-    Action smoothAction;
+    Action smoothAction, sharpenAction, stampingAction, aquaAction, gammaAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -135,6 +135,10 @@ public class AppWindow extends JFrame implements Observer {
         robertsAction = new RobertsAction();
 
         smoothAction = new SmoothAction();
+        sharpenAction = new SharpenAction();
+        stampingAction = new StampingAction();
+        aquaAction = new AquaAction();
+        gammaAction = new GammaAction();
     }
 
     private void initToolbar () {
@@ -151,7 +155,11 @@ public class AppWindow extends JFrame implements Observer {
                 new ToolbarContent(orderedDitheringAction, true),
                 new ToolbarContent(sobelAction, false),
                 new ToolbarContent(robertsAction, true),
-                new ToolbarContent(smoothAction, false)
+                new ToolbarContent(smoothAction, false),
+                new ToolbarContent(sharpenAction, false),
+                new ToolbarContent(stampingAction, false),
+                new ToolbarContent(aquaAction, false),
+                new ToolbarContent(gammaAction, false),
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
@@ -246,6 +254,10 @@ public class AppWindow extends JFrame implements Observer {
         sobelAction.setEnabled(enabled);
         robertsAction.setEnabled(enabled);
         smoothAction.setEnabled(enabled);
+        sharpenAction.setEnabled(enabled);
+        stampingAction.setEnabled(enabled);
+        aquaAction.setEnabled(enabled);
+        gammaAction.setEnabled(enabled);
     }
     private void checkCActions () {
         boolean enabled;
@@ -567,6 +579,70 @@ public class AppWindow extends JFrame implements Observer {
         }
         public void actionPerformed(ActionEvent e) {
             logic.smoothing();
+        }
+    }
+
+    public class SharpenAction extends AbstractAction {
+        public SharpenAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Sharpening");
+            String desc =  "Sharpen image";
+            int mnemonic = KeyEvent.VK_P;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control P");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.sharpening();
+        }
+    }
+
+    public class StampingAction extends AbstractAction {
+        public StampingAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Stamping");
+            String desc =  "Apply stamp effect";
+            int mnemonic = KeyEvent.VK_M;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control M");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.stamping();
+        }
+    }
+
+    public class AquaAction extends AbstractAction {
+        public AquaAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Aqua");
+            String desc =  "Apply aqua effect";
+            int mnemonic = KeyEvent.VK_Q;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control Q");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.aqua();
+        }
+    }
+
+    public class GammaAction extends AbstractAction {
+        public GammaAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Gamma");
+            String desc =  "Apply gamma correction";
+            int mnemonic = KeyEvent.VK_G;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control G");
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.gamma();
         }
     }
 }

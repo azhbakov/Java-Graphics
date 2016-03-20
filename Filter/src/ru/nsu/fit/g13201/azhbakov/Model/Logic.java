@@ -141,9 +141,9 @@ public class Logic extends Observable {
     }
 
     public void AtoB () {
-        imageB = new BufferedImage(sourceRight - sourceLeft, sourceUp - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
-        for (int i = 0; i < sourceRight - sourceLeft; i++) {
-            for (int j = 0; j < sourceUp - sourceBottom; j++) {
+        imageB = new BufferedImage(sourceRight+1 - sourceLeft, sourceUp+1 - sourceBottom, BufferedImage.TYPE_3BYTE_BGR);
+        for (int i = 0; i < sourceRight - sourceLeft+1; i++) {
+            for (int j = 0; j < sourceUp - sourceBottom+1; j++) {
                 imageB.setRGB(i, j, source.getRGB(sourceLeft + i, sourceBottom + j));
             }
         }
@@ -219,6 +219,39 @@ public class Logic extends Observable {
         BtoC();
         if (imageC == null) return;
         imageC = Smoothing.smooth(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void sharpening () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = Sharpening.sharpen(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void stamping () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = Stamping.stamp(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void aqua () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = Smoothing.smooth(imageC);
+        imageC = Sharpening.sharpen(imageC);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void gamma () {
+        BtoC();
+        if (imageC == null) return;
+        imageC = GammaCorrection.gammaCorrection(imageC, 0.5f);
         setChanged();
         notifyObservers();
     }
