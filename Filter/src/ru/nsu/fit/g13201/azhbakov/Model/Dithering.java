@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov.Model;
+package ru.nsu.fit.g13201.azhbakov.model;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 public class Dithering {
 
     public static BufferedImage FloydSteinberg (BufferedImage image, int[] reds, int[] greens, int[] blues) {
-        //BufferedImage res = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        BufferedImage res = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         //float[][] fr = new float[image.getWidth()][image.getHeight()];
         //float[][] fg = new float[image.getWidth()][image.getHeight()];
         //float[][] fb = new float[image.getWidth()][image.getHeight()];
@@ -27,14 +27,14 @@ public class Dithering {
                 //fr[x][y] += old.getRed();
                // fg[x][y] += old.getGreen();
                 //fb[x][y] += old.getBlue();
-                image.setRGB(x, y, new Color(pr, pg, pb).getRGB());
+                res.setRGB(x, y, new Color(pr, pg, pb).getRGB());
 
                 if (x < image.getWidth()-1) {
                     old = new Color(image.getRGB(x + 1, y));
                     newr = trunc(reds, (int)((float)old.getRed() + (float)7 * er / 16));
                     newg = trunc(greens, (int)((float)old.getGreen() + (float)7 * eg / 16));
                     newb = trunc(blues, (int)((float)old.getBlue() + (float)7 * eb / 16));
-                    image.setRGB(x + 1, y, new Color(newr,
+                    res.setRGB(x + 1, y, new Color(newr,
                             newg,
                             newb).getRGB());
                 }
@@ -44,7 +44,7 @@ public class Dithering {
                     newr = trunc(reds, (int)((float)old.getRed() + (float)3*er/16));
                     newg = trunc(greens, (int)((float)old.getGreen() + (float)3*eg/16));
                     newb = trunc(blues, (int)((float)old.getBlue() + (float)3*eb/16));
-                    image.setRGB(x-1, y+1, new Color(newr,
+                    res.setRGB(x-1, y+1, new Color(newr,
                             newg,
                             newb).getRGB());
                 }
@@ -54,7 +54,7 @@ public class Dithering {
                     newr = trunc(reds, (int)((float)old.getRed() + (float)5 * er / 16));
                     newg = trunc(greens, (int)((float)old.getGreen() + (float)(5 * eg / 16)));
                     newb = trunc(blues, (int)((float)old.getBlue() + (float)5 * eb / 16));
-                    image.setRGB(x, y + 1, new Color(newr,
+                    res.setRGB(x, y + 1, new Color(newr,
                             newg,
                             newb).getRGB());
                 }
@@ -64,13 +64,13 @@ public class Dithering {
                     newr = trunc(reds, (int)((float)old.getRed() + (float)1 * er / 16));
                     newg = trunc(greens, (int)((float)old.getGreen() + (float)1 * eg / 16));
                     newb = trunc(blues, (int)((float)old.getBlue() + (float)1 * eb / 16));
-                    image.setRGB(x + 1, y + 1, new Color(newr,
+                    res.setRGB(x + 1, y + 1, new Color(newr,
                             newg,
                             newb).getRGB());
                 }
             }
         }
-        return image;
+        return res;
     }
 
     private static int trunc (int[] newc, int oldc) {
@@ -89,6 +89,7 @@ public class Dithering {
     }
 
     public static BufferedImage orderedDithering (BufferedImage image, int[] reds, int[] greens, int[] blues) {
+        BufferedImage res = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         int matSize = 4;
         int k = 1/(matSize*matSize + 1);
         int[][] tMat = {{1,9,3,11},
@@ -106,9 +107,9 @@ public class Dithering {
                 green = trunc(greens, green);
                 blue = trunc(blues, blue);
 
-                image.setRGB(x, y, new Color(red, green, blue).getRGB());
+                res.setRGB(x, y, new Color(red, green, blue).getRGB());
             }
         }
-        return image;
+        return res;
     }
 }

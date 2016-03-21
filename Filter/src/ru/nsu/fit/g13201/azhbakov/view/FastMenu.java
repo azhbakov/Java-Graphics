@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov.Model;
+package ru.nsu.fit.g13201.azhbakov.view;
 
 import javax.swing.*;
 import java.security.InvalidParameterException;

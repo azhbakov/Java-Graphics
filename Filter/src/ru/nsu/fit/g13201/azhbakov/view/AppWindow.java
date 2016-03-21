@@ -1,21 +1,13 @@
-package ru.nsu.fit.g13201.azhbakov;
+package ru.nsu.fit.g13201.azhbakov.view;
 
-import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
-import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
-import ru.nsu.fit.g13201.azhbakov.Model.Downscale;
-import ru.nsu.fit.g13201.azhbakov.Model.FastMenu;
-import ru.nsu.fit.g13201.azhbakov.Model.FileUtils;
-import ru.nsu.fit.g13201.azhbakov.Model.Logic;
-import ru.nsu.fit.g13201.azhbakov.ToolbarUtils.ToolbarContent;
-import ru.nsu.fit.g13201.azhbakov.ToolbarUtils.ToolbarUtils;
+import ru.nsu.fit.g13201.azhbakov.model.*;
+import ru.nsu.fit.g13201.azhbakov.view.toolbarUtils.ToolbarContent;
+import ru.nsu.fit.g13201.azhbakov.view.toolbarUtils.ToolbarUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -438,7 +430,7 @@ public class AppWindow extends JFrame implements Observer {
         }
     }
     public void saveFileAs () {
-        File f = FileUtils.getSaveFileName(this, "txt", "Text files");
+        File f = FileUtils.getSaveFileName(this, "bmp", "Bitmap Image");
         if (f == null)
             return;
         else {
@@ -546,7 +538,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/grayscale.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.grayscale();
@@ -562,7 +554,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/negative.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.negative();
@@ -578,7 +570,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/zoom.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.bilinearLerp();
@@ -587,7 +579,7 @@ public class AppWindow extends JFrame implements Observer {
 
     public class FloydDitheringAction extends AbstractAction {
         public FloydDitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("Dithering");
+            super("Floyd-Steinberg dithering");
             String desc =  "Apply Floyd-Steinberg dithering";
             int mnemonic = KeyEvent.VK_Y;
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control Y");
@@ -597,23 +589,23 @@ public class AppWindow extends JFrame implements Observer {
             putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.ditheringFloyd();
+            showFloydSettings();
         }
     }
 
     public class OrderedDitheringAction extends AbstractAction {
         public OrderedDitheringAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
-            super("Dithering");
+            super("Ordered dithering");
             String desc =  "Apply ordered dithering";
             int mnemonic = KeyEvent.VK_R;
             KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/ordered.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.ditheringOrdered();
+            showOrderedSettings();
         }
     }
 
@@ -626,10 +618,10 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/sobel.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.sobel();
+            showSobelSettings();
         }
     }
 
@@ -642,10 +634,10 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/roberts.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.roberts();
+            showRobertsSettings();
         }
     }
 
@@ -658,7 +650,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/blur.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.smoothing();
@@ -674,7 +666,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/sharpen.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.sharpening();
@@ -690,7 +682,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/stamp.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.stamping();
@@ -706,7 +698,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/watercolor.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.aqua();
@@ -722,10 +714,10 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/gamma.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.gamma();
+            showGammaSettings();
         }
     }
 
@@ -738,10 +730,10 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/rotate.png"));
         }
         public void actionPerformed(ActionEvent e) {
-            logic.rotate();
+            showRotationSettings();
         }
     }
 
@@ -754,7 +746,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/pixelize.png"));
         }
         public void actionPerformed(ActionEvent e) {
             logic.pixelize();
@@ -780,4 +772,30 @@ public class AppWindow extends JFrame implements Observer {
     public void showAbout () {
         JOptionPane.showMessageDialog (null, ABOUT, "About", JOptionPane.INFORMATION_MESSAGE);
     }
+
+    public void showRotationSettings () {
+        RotateSettingsWindow settingsWindow = new RotateSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+    public void showGammaSettings () {
+        GammaSettingsWindow settingsWindow= new GammaSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+    public void showSobelSettings () {
+        SobelSettingsWindow settingsWindow = new SobelSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+    public void showRobertsSettings () {
+        RobertsSettingsWindow settingsWindow = new RobertsSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+    public void showFloydSettings () {
+        FloydSteinbergSettingsWindow settingsWindow = new FloydSteinbergSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+    public void showOrderedSettings () {
+        OrderedDitheringSettingsWindow settingsWindow = new OrderedDitheringSettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
+    }
+
 }

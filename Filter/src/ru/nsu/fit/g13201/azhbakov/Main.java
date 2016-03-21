@@ -1,6 +1,7 @@
 package ru.nsu.fit.g13201.azhbakov;
 
-import ru.nsu.fit.g13201.azhbakov.Model.Logic;
+import ru.nsu.fit.g13201.azhbakov.model.Logic;
+import ru.nsu.fit.g13201.azhbakov.view.AppWindow;
 
 /**
  * Created by marting422 on 09.03.2016.

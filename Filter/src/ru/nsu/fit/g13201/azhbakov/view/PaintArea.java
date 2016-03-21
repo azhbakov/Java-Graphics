@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov;
+package ru.nsu.fit.g13201.azhbakov.view;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,8 +18,8 @@ public class PaintArea extends JPanel {
 
     public void setRect (int left, int right, int up, int bottom) {
         frameLeft = left;
-        frameRight = right;
-        frameUp = up;
+        frameRight = right-1;
+        frameUp = up-1;
         frameBottom = bottom;
         //System.out.println("left == " + frameLeft + " right == " + frameRight + " bottom == " + frameBottom + " up == " + frameUp);
         revalidate();

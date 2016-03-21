@@ -1,8 +1,8 @@
-package ru.nsu.fit.g13201.azhbakov.Model;
+package ru.nsu.fit.g13201.azhbakov.model;
 
-import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPReader;
-import ru.nsu.fit.g13201.azhbakov.Model.BMP.BMPWriter;
-import ru.nsu.fit.g13201.azhbakov.Model.BMP.BadFileException;
+import ru.nsu.fit.g13201.azhbakov.model.BMP.BMPReader;
+import ru.nsu.fit.g13201.azhbakov.model.BMP.BMPWriter;
+import ru.nsu.fit.g13201.azhbakov.model.BMP.BadFileException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,8 +27,10 @@ public class Logic extends Observable {
     int sourceLeft, sourceRight, sourceUp, sourceBottom;
     int frameLeft, frameRight, frameUp, frameBottom;
 
-    int sobelThreshold = 255;
-    int robertsThreshold = 255;
+    double gamma = 2;
+    int threshold = 255;
+    double rotationDeg = 45;
+    int palleteLevels = 5;
     Boolean pixelize = false;
 
 
@@ -83,7 +85,7 @@ public class Logic extends Observable {
                 right = left + zoneSize.width;
             } else { // left will not overlap
                 right = xs + zoneSize.width/2;
-                if (right >= source.getWidth()) right = source.getWidth()-1;
+                if (right >= source.getWidth()) right = source.getWidth();
                 left = right - zoneSize.width;
             }
         }
@@ -98,7 +100,7 @@ public class Logic extends Observable {
                 up = bottom + zoneSize.height;
             } else { // bottom will not overlap
                 up = ys + zoneSize.height/2;
-                if (up >= source.getHeight()) up = source.getHeight()-1;
+                if (up >= source.getHeight()) up = source.getHeight();
                 bottom = up - zoneSize.height;
             }
         }
@@ -194,10 +196,10 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
-//        for (int i = 0; i < 25; i++) {
-//            newc[i] = 10 * i;
-//        }
+        int[] newc = new int[palleteLevels];
+        for (int i = 0; i < palleteLevels; i++) {
+            newc[i] = (255/palleteLevels) * i;
+        }
         imageC = Dithering.FloydSteinberg(source, newc, newc, newc);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
@@ -208,10 +210,10 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        int[] newc = {0, 50, 100, 150, 200, 230, 255};//new int[25];
-//        for (int i = 0; i < 25; i++) {
-//            newc[i] = 10 * i;
-//        }
+        int[] newc = new int[palleteLevels];
+        for (int i = 0; i < palleteLevels; i++) {
+            newc[i] = (255/palleteLevels) * i;
+        }
         imageC = Dithering.orderedDithering(source, newc, newc, newc);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
@@ -222,7 +224,7 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        imageC = EdgeDetection.SobelFilter(source, sobelThreshold);
+        imageC = EdgeDetection.SobelFilter(source, threshold);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
@@ -232,7 +234,7 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        imageC = EdgeDetection.RobertsFilter(source, robertsThreshold);
+        imageC = EdgeDetection.RobertsFilter(source, threshold);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
@@ -285,7 +287,7 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        imageC = Rotate.rotate(source, -20);
+        imageC = Rotate.rotate(source, rotationDeg);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
@@ -295,7 +297,7 @@ public class Logic extends Observable {
         if (imageB == null) return;
         BufferedImage source = imageB;
         if (pixelize) source = Pixelize.pixelize(imageB);
-        imageC = GammaCorrection.gammaCorrection(source, 0.5f);
+        imageC = GammaCorrection.gammaCorrection(source, gamma);
         if (pixelize) imageC = Pixelize.unpixelize(imageC);
         setChanged();
         notifyObservers();
@@ -387,4 +389,36 @@ public class Logic extends Observable {
     }
 
     public boolean isPixelized () {return pixelize;}
+
+    public int getPalleteLevels() {
+        return palleteLevels;
+    }
+
+    public void setPalleteLevels(int palleteLevels) {
+        this.palleteLevels = palleteLevels;
+    }
+
+    public double getGamma() {
+        return gamma;
+    }
+
+    public void setGamma(double gamma) {
+        this.gamma = gamma;
+    }
+
+    public int getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(int threshold) {
+        this.threshold = threshold;
+    }
+
+    public double getRotationDeg() {
+        return rotationDeg;
+    }
+
+    public void setRotationDeg(double rotationDeg) {
+        this.rotationDeg = rotationDeg;
+    }
 }

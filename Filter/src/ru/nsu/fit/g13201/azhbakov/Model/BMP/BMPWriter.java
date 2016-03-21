@@ -1,9 +1,8 @@
-package ru.nsu.fit.g13201.azhbakov.Model.BMP;
+package ru.nsu.fit.g13201.azhbakov.model.BMP;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -73,13 +72,13 @@ public class BMPWriter {
         buffer.putInt(40); // structure size
         buffer.putInt(image.getWidth()); // width
         buffer.putInt(image.getHeight()); // height
-        buffer.putShort((short) 1); // planes
-        buffer.putShort((short) 24); // bitcount
+        buffer.putShort((short)1); // planes
+        buffer.putShort((short)24); // bitcount
         buffer.putInt(0); // compression
         int lineLen;
-        if (image.getWidth()%4 == 0) lineLen = image.getWidth();
-        else lineLen = image.getWidth() + image.getWidth()%4;
-        buffer.putInt(lineLen); // size image
+        if (image.getWidth()%4 == 0) lineLen = image.getWidth()*3;
+        else lineLen = image.getWidth()*3 + image.getWidth()%4;
+        buffer.putInt(image.getHeight()*lineLen+54); // size image
         buffer.putInt(0); // xppm
         buffer.putInt(0); // yppm
         buffer.putInt(0); // clrused
@@ -89,8 +88,8 @@ public class BMPWriter {
         writer.writeInt(buffer.getInt(0));
         writer.writeInt(buffer.getInt(4));
         writer.writeInt(buffer.getInt(8));
-        writer.writeShort(buffer.get(12));
-        writer.writeShort(buffer.get(14));
+        writer.writeShort(buffer.getShort(12));
+        writer.writeShort(buffer.getShort(14));
         writer.writeInt(buffer.getInt(16));
         writer.writeInt(buffer.getInt(20));
         writer.writeInt(buffer.getInt(24));

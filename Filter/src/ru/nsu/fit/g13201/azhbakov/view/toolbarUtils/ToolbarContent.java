@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov.ToolbarUtils;
+package ru.nsu.fit.g13201.azhbakov.view.toolbarUtils;
 
 import javax.swing.*;
 

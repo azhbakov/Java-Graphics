@@ -1,10 +1,7 @@
-package ru.nsu.fit.g13201.azhbakov.Model;
+package ru.nsu.fit.g13201.azhbakov.model;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.MemoryImageSource;
-import java.util.Map;
-import java.util.regex.Matcher;
 
 /**
  * Created by Martin on 20.03.2016.

@@ -1,4 +1,4 @@
-package ru.nsu.fit.g13201.azhbakov.Model;
+package ru.nsu.fit.g13201.azhbakov.model;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
  */
 public class GammaCorrection {
     public static BufferedImage gammaCorrection (BufferedImage image, double gamma) {
-
+        BufferedImage res = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 Color c = new Color(image.getRGB(x,y));
@@ -26,10 +26,10 @@ public class GammaCorrection {
                 if (g < 0) g = 0;
                 if (b > 255) b = 255;
                 if (b < 0) b = 0;
-                image.setRGB(x, y, new Color(r, g, b).getRGB());
+                res.setRGB(x, y, new Color(r, g, b).getRGB());
             }
         }
 
-        return image;
+        return res;
     }
 }
