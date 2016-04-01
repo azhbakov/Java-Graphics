@@ -13,7 +13,7 @@ public class Logic extends Observable {
     final String defaultSettings = "Iso/Data/settings.txt";
 
     Func2 function = new CircleFunc();
-    float a = 0, b = 1, c = 0, d = 1;
+    float a = 10, b = 20, c = 10, d = 20;
     int k, m;
     int n;
     Color[] legendColors;
@@ -22,6 +22,8 @@ public class Logic extends Observable {
     float[] isolevels;
 
     boolean showGrid = true;
+    boolean showIsolines = true;
+    boolean lerp = true;
 
     public Logic () {
         init (null);
@@ -57,8 +59,9 @@ public class Logic extends Observable {
             float step = (max - min)/(n+1);
             System.out.println("max == " + max + ", min == " + min + ", step == " + step);
             for (int i = 0; i < n; i++) {
-                isolevels[i] = (i+1)*step;
-                System.out.println("Z" + i + ": " + isolevels[i] + ", lower color: " + legendColors[i]);
+                isolevels[i] = min + (i+1)*step;
+                System.out.println("Z" + i + ": " + isolevels[i]
+                        + ", lower color: " + legendColors[i]);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -93,6 +96,7 @@ public class Logic extends Observable {
 
     public void setA(float a) {
         this.a = a;
+        setChanged(); notifyObservers();
     }
 
     public float getB() {
@@ -101,6 +105,7 @@ public class Logic extends Observable {
 
     public void setB(float b) {
         this.b = b;
+        setChanged(); notifyObservers();
     }
 
     public float getC() {
@@ -109,6 +114,7 @@ public class Logic extends Observable {
 
     public void setC(float c) {
         this.c = c;
+        setChanged(); notifyObservers();
     }
 
     public float getD() {
@@ -117,6 +123,7 @@ public class Logic extends Observable {
 
     public void setD(float d) {
         this.d = d;
+        setChanged(); notifyObservers();
     }
 
     public int getK() {
@@ -125,6 +132,7 @@ public class Logic extends Observable {
 
     public void setK(int k) {
         this.k = k;
+        setChanged(); notifyObservers();
     }
 
     public int getM() {
@@ -133,6 +141,7 @@ public class Logic extends Observable {
 
     public void setM(int m) {
         this.m = m;
+        setChanged(); notifyObservers();
     }
 
     public int getN() {
@@ -141,6 +150,7 @@ public class Logic extends Observable {
 
     public void setN(int n) {
         this.n = n;
+        setChanged(); notifyObservers();
     }
 
     public Color[] getLegendColors() {
@@ -149,6 +159,7 @@ public class Logic extends Observable {
 
     public void setLegendColors(Color[] legendColors) {
         this.legendColors = legendColors;
+        setChanged(); notifyObservers();
     }
 
     public Color getIsoColor() {
@@ -157,6 +168,16 @@ public class Logic extends Observable {
 
     public void setIsoColor(Color isoColor) {
         this.isoColor = isoColor;
+        setChanged(); notifyObservers();
+    }
+
+    public boolean showIsolines() {
+        return showIsolines;
+    }
+
+    public void setShowIsolines(boolean showIsolines) {
+        this.showIsolines = showIsolines;
+        setChanged(); notifyObservers();
     }
 
     public boolean showGrid() {
@@ -164,7 +185,7 @@ public class Logic extends Observable {
     }
 
     public void setShowGrid(boolean showGrid) {
-        this.showGrid = showGrid;
+        this.showGrid = showGrid; setChanged(); notifyObservers();
     }
 
     public float[][] getZ() {
@@ -175,4 +196,12 @@ public class Logic extends Observable {
         return isolevels;
     }
 
+    public boolean lerp() {
+        return lerp;
+    }
+
+    public void setLerp(boolean lerp) {
+        this.lerp = lerp;
+        setChanged(); notifyObservers();
+    }
 }

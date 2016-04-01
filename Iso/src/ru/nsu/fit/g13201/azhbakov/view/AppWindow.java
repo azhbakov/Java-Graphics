@@ -24,6 +24,7 @@ public class AppWindow extends JFrame implements Observer {
 
     Action openAction;
     Action aboutAction;
+    Action showGridAction, showIsolinesAction, lerpAction;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -56,11 +57,17 @@ public class AppWindow extends JFrame implements Observer {
     private void initActions () {
         openAction = new OpenAction();
         aboutAction = new AboutAction();
+        showGridAction = new ShowGridAction();
+        showIsolinesAction = new ShowIsolinesAction();
+        lerpAction = new LerpAction();
     }
 
     private void initToolbar () {
         ToolbarContent[] toolbarContents = {
-                new ToolbarContent(openAction, false),
+                new ToolbarContent(openAction, true),
+                new ToolbarContent(showGridAction, false),
+                new ToolbarContent(showIsolinesAction, false),
+                new ToolbarContent(lerpAction, true),
                 new ToolbarContent(aboutAction, false),
         };
 
@@ -84,7 +91,7 @@ public class AppWindow extends JFrame implements Observer {
         setJMenuBar(menuBar);
         try {
             createFileMenu();
-            createColorMenu();
+            createViewMenu();
             createHelpMenu();
             menuBar.setVisible(true);
         } catch (Exception ex) {
@@ -97,8 +104,20 @@ public class AppWindow extends JFrame implements Observer {
         menuBar.addMenuItem(null, "File/Open", openAction);
     }
 
-    private void createColorMenu () throws ClassNotFoundException, NoSuchMethodException {
-        menuBar.addMenu("Color", null, KeyEvent.VK_C);
+    private void createViewMenu () throws ClassNotFoundException, NoSuchMethodException {
+        menuBar.addMenu("View", null, KeyEvent.VK_V);
+
+        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem("Show grid");
+        cbMenuItem.setState(logic.showGrid());
+        menuBar.addMenuItem(cbMenuItem, "View/Show grid", showGridAction);
+
+        cbMenuItem = new JCheckBoxMenuItem("Show isolines");
+        cbMenuItem.setState(logic.showIsolines());
+        menuBar.addMenuItem(cbMenuItem, "View/Show isolines", showIsolinesAction);
+
+        cbMenuItem = new JCheckBoxMenuItem("Enable interpolation");
+        cbMenuItem.setState(logic.lerp());
+        menuBar.addMenuItem(cbMenuItem, "View/Enable interpolation", lerpAction);
     }
 
     private void createHelpMenu () throws ClassNotFoundException, NoSuchMethodException {
@@ -161,5 +180,54 @@ public class AppWindow extends JFrame implements Observer {
     }
     public void showAbout () {
         JOptionPane.showMessageDialog (null, ABOUT, "About", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public class ShowGridAction extends AbstractAction {
+        public ShowGridAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Show grid");
+            String desc = "Show/hide grid";
+            int mnemonic = KeyEvent.VK_G;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control G");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.setShowGrid(!logic.showGrid());
+        }
+    }
+    public class ShowIsolinesAction extends AbstractAction {
+        public ShowIsolinesAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Show isolines");
+            String desc = "Show/hide isolines";
+            int mnemonic = KeyEvent.VK_I;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control I");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.setShowIsolines(!logic.showIsolines());
+        }
+    }
+    public class LerpAction extends AbstractAction {
+        public LerpAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Enable interpolation");
+            String desc = "Enable/disable interpolation";
+            int mnemonic = KeyEvent.VK_P;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control P");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.setLerp(!logic.lerp());
+        }
     }
 }
