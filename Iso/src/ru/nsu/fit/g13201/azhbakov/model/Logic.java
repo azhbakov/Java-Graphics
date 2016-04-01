@@ -58,7 +58,7 @@ public class Logic extends Observable {
             System.out.println("max == " + max + ", min == " + min + ", step == " + step);
             for (int i = 0; i < n; i++) {
                 isolevels[i] = (i+1)*step;
-                System.out.println("Z" + i + ": " + isolevels[i]);
+                System.out.println("Z" + i + ": " + isolevels[i] + ", lower color: " + legendColors[i]);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -74,8 +74,8 @@ public class Logic extends Observable {
         k = reader.nextInt();
         m = reader.nextInt();
         n = reader.nextInt();
-        legendColors = new Color[n];
-        for (int i = 0; i < n; i++) {
+        legendColors = new Color[n+1];
+        for (int i = 0; i <= n; i++) {
             legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
         }
         isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());

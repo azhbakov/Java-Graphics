@@ -28,11 +28,85 @@ public class Isomap extends JPanel implements Observer {
     public void paint (Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D)g;
+        fillMap(g2);
         if (logic.showGrid()) {
             drawGrid(g2);
         }
         drawIsolines(g2);
         //drawValues(g2);
+    }
+
+    private void fillMap (Graphics2D g2) {
+        float[] isolevels = logic.getIsolevels();
+        Color[] legendColors = logic.getLegendColors();
+        for (int i = 0; i < mapAreaSize.width; i++) {
+            for (int j = 0; j < mapAreaSize.height; j++) {
+                float z = zFromUV((float)i/mapAreaSize.width, (float)j/mapAreaSize.height);
+                if (i == 250 && j == 250) System.out.println(z);
+                for (int k = 0; k < isolevels.length; k++) {
+//                    if (z < isolevels[k]) {
+//                        g2.setColor(logic.getLegendColors()[k]);
+//                        g2.drawLine(offset+i, offset+j, offset+i, offset+j);
+//                        break;
+//                    }
+//                    if (k == isolevels.length-1) {
+//                        g2.setColor(logic.getLegendColors()[k+1]);
+//                        g2.drawLine(offset+i, offset+j, offset+i, offset+j);
+//                    }
+                    Color c = new Color(0,0,0);
+                    if (z < isolevels[k]) {
+                        if (k == 0) c = legendColors[k];
+                        else {
+                            Color c1 = legendColors[k-1];
+                            Color c2 = legendColors[k];
+                            int r = c1.getRed() + (int)((z-isolevels[k-1])/(isolevels[k]-isolevels[k-1])*(c2.getRed()-c1.getRed()));
+                            int g = c1.getGreen() + (int)((z-isolevels[k-1])/(isolevels[k]-isolevels[k-1])*(c2.getGreen()-c1.getGreen()));
+                            int b = c1.getBlue() + (int)((z-isolevels[k-1])/(isolevels[k]-isolevels[k-1])*(c2.getBlue()-c1.getBlue()));
+                            c = new Color(r, g, b);
+                        }
+                        g2.setColor(c);
+                        g2.drawLine(offset+i, offset+j, offset+i, offset+j);
+                        break;
+                    }
+                    if (k == isolevels.length-1) { // if bigger then last Z
+                        Color c1 = legendColors[k];
+                        Color c2 = legendColors[k+1];
+                        int r = c1.getRed() + (int)((z-isolevels[k])/(isolevels[k]-isolevels[k-1])*(c2.getRed()-c1.getRed()));
+                        int g = c1.getGreen() + (int)((z-isolevels[k])/(isolevels[k]-isolevels[k-1])*(c2.getGreen()-c1.getGreen()));
+                        int b = c1.getBlue() + (int)((z-isolevels[k])/(isolevels[k]-isolevels[k-1])*(c2.getBlue()-c1.getBlue()));
+                        if (r > 255) r = 255; if (r < 0) r = 0;
+                        if (g > 255) g = 255; if (g < 0) g = 0;
+                        if (b > 255) b = 255; if (b < 0) b = 0;
+                        c = new Color(r, g, b);
+                        g2.setColor(c);
+                        g2.drawLine(offset+i, offset+j, offset+i, offset+j);
+                    }
+                }
+            }
+        }
+        g2.setColor(Color.black);
+    }
+
+    private float zFromUV (float x, float y) {
+        float[][] z = logic.getZ();
+        float a = logic.getA();
+        float b = logic.getB();
+        float c = logic.getC();
+        float d = logic.getD();
+        float argStepX = (logic.getB()-logic.getA())/(logic.getK()-1);
+        float argStepY = (logic.getD()-logic.getC())/(logic.getM()-1);
+        float argX = a + (b-a)*x;
+        float argY = c + (d-c)*y;
+        float f1 = z[(int)(argX/argStepX)][(int)(argY/argStepY)+1];
+        float f2 = z[(int)(argX/argStepX)+1][(int)(argY/argStepY)+1];
+        float f3 = z[(int)(argX/argStepX)][(int)(argY/argStepY)];
+        float f4 = z[(int)(argX/argStepX)+1][(int)(argY/argStepY)];
+        float fu = f1 + (f2-f1)/argStepX*(argX-(int)(argX/argStepX)*argStepX);
+        float fd = f3 + (f4-f3)/argStepX*(argX-(int)(argX/argStepX)*argStepX);
+//        if (x == 0.5f && y == 0.5f) {
+//            System.out.println(argX + " " + argY + " " + f1 + " " + f2);
+//        }
+        return fd + (fu-fd)/argStepY*(argY-(int)(argY/argStepY)*argStepY);
     }
 
     private void drawGrid(Graphics2D g2) {
@@ -50,7 +124,6 @@ public class Isomap extends JPanel implements Observer {
             }
             g2.drawLine(offset + 0, offset + (int)(i*stepY), offset+mapAreaSize.width, offset + (int)(i*stepY));
         }
-        System.out.println((logic.getK()-1)*stepX + " " + mapAreaSize.width);
     }
 
     private void drawValues (Graphics2D g2) {
