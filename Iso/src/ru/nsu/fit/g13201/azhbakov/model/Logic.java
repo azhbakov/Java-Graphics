@@ -2,6 +2,7 @@ package ru.nsu.fit.g13201.azhbakov.model;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Scanner;
 
@@ -11,13 +12,14 @@ import java.util.Scanner;
 public class Logic extends Observable {
     final String defaultSettings = "Iso/Data/settings.txt";
 
-    Func2 function = new SumFunc();
-    float a = 0, b = 0, c = 1, d = 1;
+    Func2 function = new CircleFunc();
+    float a = 0, b = 1, c = 0, d = 1;
     int k, m;
     int n;
     Color[] legendColors;
     Color isoColor;
     float[][] z;
+    float[] isolevels;
 
     boolean showGrid = true;
 
@@ -30,14 +32,33 @@ public class Logic extends Observable {
             f = new File(defaultSettings);
         try {
             readSettings(f);
-            z = new float[k][m];
 
-            float stepX = (b-a)/k;
-            float stepY = (d-c)/m;
+            // Init grid function
+            z = new float[k][m];
+            float stepX = (b-a)/(k-1);
+            float stepY = (d-c)/(m-1);
+            float min = function.res(a, c);
+            float max = min;
             for (int i = 0; i < k; i++) {
                 for (int j = 0; j < m; j++) {
                     z[i][j] = function.res(a + stepX*i, c + stepY*j);
+                    System.out.println("z[" + i + "][" + j + "] == " + z[i][j]);
+                    if (z[i][j] < min) {
+                        min = z[i][j];
+                    }
+                    if (z[i][j] > max) {
+                        max = z[i][j];
+                    }
                 }
+            }
+
+            // Init z levels
+            isolevels = new float[n];
+            float step = (max - min)/(n+1);
+            System.out.println("max == " + max + ", min == " + min + ", step == " + step);
+            for (int i = 0; i < n; i++) {
+                isolevels[i] = (i+1)*step;
+                System.out.println("Z" + i + ": " + isolevels[i]);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -149,4 +170,9 @@ public class Logic extends Observable {
     public float[][] getZ() {
         return z;
     }
+
+    public float[] getIsolevels() {
+        return isolevels;
+    }
+
 }
