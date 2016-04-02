@@ -17,14 +17,15 @@ import java.util.Observer;
  */
 public class AppWindow extends JFrame implements Observer {
     final String ABOUT = "Isolines, Azhbakov Artem FIT 13201, 2016\n\nProgram designed to study graphical algoruthms, " +
-            ", as part of NSU CG course.";
+            "as part of NSU CG course.";
 
     Logic logic;
     FastMenu menuBar;
 
-    Action openAction;
+    Action openAction, settingsAction;
     Action aboutAction;
     Action showGridAction, showIsolinesAction, lerpAction;
+    JCheckBoxMenuItem showGridCb, showIsolinesCb, lerpCb;
 
     public AppWindow (Logic logic) {
         super ("Filter");
@@ -56,6 +57,7 @@ public class AppWindow extends JFrame implements Observer {
 
     private void initActions () {
         openAction = new OpenAction();
+        settingsAction = new SettingsAction();
         aboutAction = new AboutAction();
         showGridAction = new ShowGridAction();
         showIsolinesAction = new ShowIsolinesAction();
@@ -64,7 +66,8 @@ public class AppWindow extends JFrame implements Observer {
 
     private void initToolbar () {
         ToolbarContent[] toolbarContents = {
-                new ToolbarContent(openAction, true),
+                new ToolbarContent(openAction, false),
+                new ToolbarContent(settingsAction, true),
                 new ToolbarContent(showGridAction, false),
                 new ToolbarContent(showIsolinesAction, false),
                 new ToolbarContent(lerpAction, true),
@@ -102,22 +105,23 @@ public class AppWindow extends JFrame implements Observer {
     private void createFileMenu () throws ClassNotFoundException, NoSuchMethodException {
         menuBar.addMenu("File", null, KeyEvent.VK_F);
         menuBar.addMenuItem(null, "File/Open", openAction);
+        menuBar.addMenuItem(null, "File/Settings", settingsAction);
     }
 
     private void createViewMenu () throws ClassNotFoundException, NoSuchMethodException {
         menuBar.addMenu("View", null, KeyEvent.VK_V);
 
-        JCheckBoxMenuItem cbMenuItem = new JCheckBoxMenuItem("Show grid");
-        cbMenuItem.setState(logic.showGrid());
-        menuBar.addMenuItem(cbMenuItem, "View/Show grid", showGridAction);
+        showGridCb = new JCheckBoxMenuItem("Show grid");
+        showGridCb.setState(logic.showGrid());
+        menuBar.addMenuItem(showGridCb, "View/Show grid", showGridAction);
 
-        cbMenuItem = new JCheckBoxMenuItem("Show isolines");
-        cbMenuItem.setState(logic.showIsolines());
-        menuBar.addMenuItem(cbMenuItem, "View/Show isolines", showIsolinesAction);
+        showIsolinesCb = new JCheckBoxMenuItem("Show isolines");
+        showIsolinesCb.setState(logic.showIsolines());
+        menuBar.addMenuItem(showIsolinesCb, "View/Show isolines", showIsolinesAction);
 
-        cbMenuItem = new JCheckBoxMenuItem("Enable interpolation");
-        cbMenuItem.setState(logic.lerp());
-        menuBar.addMenuItem(cbMenuItem, "View/Enable interpolation", lerpAction);
+        lerpCb = new JCheckBoxMenuItem("Enable interpolation");
+        lerpCb.setState(logic.lerp());
+        menuBar.addMenuItem(lerpCb, "View/Enable interpolation", lerpAction);
     }
 
     private void createHelpMenu () throws ClassNotFoundException, NoSuchMethodException {
@@ -127,7 +131,9 @@ public class AppWindow extends JFrame implements Observer {
     }
 
     public void update (Observable observable, Object object) {
-
+        showGridCb.setState(logic.showGrid());
+        showIsolinesCb.setState(logic.showIsolines());
+        lerpCb.setState(logic.lerp());
     }
 
     //
@@ -142,7 +148,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Filter/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/load.png"));
         }
         public void actionPerformed(ActionEvent e) {
             openFile ();
@@ -152,7 +158,7 @@ public class AppWindow extends JFrame implements Observer {
         File f = FileUtils.getOpenFileName(this, "txt", "Text file");
         if (f == null) return;
         try {
-            logic.init(f);
+            logic.readSettings(f);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Bad file format.",
@@ -171,7 +177,7 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/about.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
@@ -191,7 +197,7 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/grid.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
@@ -207,7 +213,7 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/isolines.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
@@ -223,11 +229,31 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Life/icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/lerp.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
             logic.setLerp(!logic.lerp());
         }
+    }
+
+    public class SettingsAction extends AbstractAction {
+        public SettingsAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Settings");
+            String desc = "Edit settings";
+            int mnemonic = KeyEvent.VK_S;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control S");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/settings.png"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            showSettings();
+        }
+    }
+    public void showSettings () {
+        SettingsWindow settingsWindow = new SettingsWindow(logic);
+        settingsWindow.setLocationRelativeTo(this);
     }
 }

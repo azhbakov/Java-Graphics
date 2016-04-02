@@ -26,67 +26,68 @@ public class Logic extends Observable {
     boolean lerp = true;
 
     public Logic () {
-        init (null);
+        readSettings (null);
     }
 
-    public void init (File f) {
+    public void init () {
+        // Init grid function
+        z = new float[k][m];
+        float stepX = (b-a)/(k-1);
+        float stepY = (d-c)/(m-1);
+        float min = function.res(a, c);
+        float max = min;
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < m; j++) {
+                z[i][j] = function.res(a + stepX*i, c + stepY*j);
+                //System.out.println("z[" + i + "][" + j + "] == " + z[i][j]);
+                if (z[i][j] < min) {
+                    min = z[i][j];
+                }
+                if (z[i][j] > max) {
+                    max = z[i][j];
+                }
+            }
+        }
+
+        // Init z levels
+        isolevels = new float[n];
+        float step = (max - min)/(n+1);
+        System.out.println("max == " + max + ", min == " + min + ", step == " + step);
+        for (int i = 0; i < n; i++) {
+            isolevels[i] = min + (i+1)*step;
+            System.out.println("Z" + i + ": " + isolevels[i]
+                    + ", lower color: " + legendColors[i]);
+        }
+    }
+
+    public void readSettings (File f) {
         if (f == null)
             f = new File(defaultSettings);
         try {
-            readSettings(f);
+            int k, m, n;
+            Color[] legendColors;
+            Color isoColor;
+            Scanner reader = new Scanner(f);
 
-            // Init grid function
-            z = new float[k][m];
-            float stepX = (b-a)/(k-1);
-            float stepY = (d-c)/(m-1);
-            float min = function.res(a, c);
-            float max = min;
-            for (int i = 0; i < k; i++) {
-                for (int j = 0; j < m; j++) {
-                    z[i][j] = function.res(a + stepX*i, c + stepY*j);
-                    System.out.println("z[" + i + "][" + j + "] == " + z[i][j]);
-                    if (z[i][j] < min) {
-                        min = z[i][j];
-                    }
-                    if (z[i][j] > max) {
-                        max = z[i][j];
-                    }
-                }
+            k = reader.nextInt();
+            m = reader.nextInt();
+            n = reader.nextInt();
+            legendColors = new Color[n + 1];
+            for (int i = 0; i <= n; i++) {
+                legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
             }
+            isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
+            this.k = k;
+            this.m = m;
+            this.n = n;
+            this.legendColors = legendColors;
+            this.isoColor = isoColor;
 
-            // Init z levels
-            isolevels = new float[n];
-            float step = (max - min)/(n+1);
-            System.out.println("max == " + max + ", min == " + min + ", step == " + step);
-            for (int i = 0; i < n; i++) {
-                isolevels[i] = min + (i+1)*step;
-                System.out.println("Z" + i + ": " + isolevels[i]
-                        + ", lower color: " + legendColors[i]);
-            }
+            init();
+            setChanged(); notifyObservers();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    private void readSettings (File f) throws Exception {
-        int k, m, n;
-        Color[] legendColors;
-        Color isoColor;
-        Scanner reader = new Scanner(f);
-
-        k = reader.nextInt();
-        m = reader.nextInt();
-        n = reader.nextInt();
-        legendColors = new Color[n+1];
-        for (int i = 0; i <= n; i++) {
-            legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
-        }
-        isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
-        this.k = k;
-        this.m = m;
-        this.n = n;
-        this.legendColors = legendColors;
-        this.isoColor = isoColor;
     }
 
 
@@ -96,6 +97,7 @@ public class Logic extends Observable {
 
     public void setA(float a) {
         this.a = a;
+        init();
         setChanged(); notifyObservers();
     }
 
@@ -105,6 +107,7 @@ public class Logic extends Observable {
 
     public void setB(float b) {
         this.b = b;
+        init();
         setChanged(); notifyObservers();
     }
 
@@ -114,6 +117,7 @@ public class Logic extends Observable {
 
     public void setC(float c) {
         this.c = c;
+        init();
         setChanged(); notifyObservers();
     }
 
@@ -123,6 +127,8 @@ public class Logic extends Observable {
 
     public void setD(float d) {
         this.d = d;
+        init();
+        //System.out.println("Set d " + d);
         setChanged(); notifyObservers();
     }
 
@@ -131,7 +137,9 @@ public class Logic extends Observable {
     }
 
     public void setK(int k) {
+        if (k < 2) return;
         this.k = k;
+        init();
         setChanged(); notifyObservers();
     }
 
@@ -140,7 +148,9 @@ public class Logic extends Observable {
     }
 
     public void setM(int m) {
+        if (m < 2) return;
         this.m = m;
+        init();
         setChanged(); notifyObservers();
     }
 
@@ -150,6 +160,7 @@ public class Logic extends Observable {
 
     public void setN(int n) {
         this.n = n;
+        init();
         setChanged(); notifyObservers();
     }
 
