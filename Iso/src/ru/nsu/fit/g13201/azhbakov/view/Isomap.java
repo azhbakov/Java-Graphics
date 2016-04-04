@@ -43,6 +43,20 @@ public class Isomap extends JPanel implements Observer {
                          + ":" + String.format("%.2f", modelPoint.getY())
                          + "): " + String.format("%.2f", zFromUV((float) imagePoint.getX()/mapAreaSize.width, (float)imagePoint.getY()/mapAreaSize.height)));
             }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                if (e.getX() < offset || mapAreaSize.width + offset-1 < e.getX() ||
+                        e.getY() < offset || mapAreaSize.height + offset-1 < e.getY()) return;
+                Point2D imagePoint = new Point2D.Float(e.getX()-offset, e.getY()-offset);
+                Point2D modelPoint = imageToModel(imagePoint);
+                float z = zFromUV((float) imagePoint.getX()/mapAreaSize.width, (float)imagePoint.getY()/mapAreaSize.height);
+                mousePos.setText("(" + String.format("%.2f", modelPoint.getX())
+                        + ":" + String.format("%.2f", modelPoint.getY())
+                        + "): " + String.format("%.2f", z));
+                userLevel[0] = z;
+                repaint();
+            }
         });
         addMouseListener(new MouseAdapter() {
             @Override

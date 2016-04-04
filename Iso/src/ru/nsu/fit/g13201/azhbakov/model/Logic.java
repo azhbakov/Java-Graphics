@@ -26,7 +26,11 @@ public class Logic extends Observable {
     boolean lerp = true;
 
     public Logic () {
-        readSettings (null);
+        try {
+            readSettings(null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void init () {
@@ -60,34 +64,30 @@ public class Logic extends Observable {
         }
     }
 
-    public void readSettings (File f) {
+    public void readSettings (File f) throws Exception {
         if (f == null)
             f = new File(defaultSettings);
-        try {
-            int k, m, n;
-            Color[] legendColors;
-            Color isoColor;
-            Scanner reader = new Scanner(f);
+        int k, m, n;
+        Color[] legendColors;
+        Color isoColor;
+        Scanner reader = new Scanner(f);
 
-            k = reader.nextInt();
-            m = reader.nextInt();
-            n = reader.nextInt();
-            legendColors = new Color[n + 1];
-            for (int i = 0; i <= n; i++) {
-                legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
-            }
-            isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
-            this.k = k;
-            this.m = m;
-            this.n = n;
-            this.legendColors = legendColors;
-            this.isoColor = isoColor;
-
-            init();
-            setChanged(); notifyObservers();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        k = reader.nextInt();
+        m = reader.nextInt();
+        n = reader.nextInt();
+        legendColors = new Color[n + 1];
+        for (int i = 0; i <= n; i++) {
+            legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
         }
+        isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
+        this.k = k;
+        this.m = m;
+        this.n = n;
+        this.legendColors = legendColors;
+        this.isoColor = isoColor;
+
+        init();
+        setChanged(); notifyObservers();
     }
 
 
