@@ -61,8 +61,10 @@ public class CurvePanel extends JPanel {
                 super.mouseDragged(e);
                 if (currentMouseMode == MouseMode.MOVE) {
                     Point mousePos = thisPanel.getMousePosition();
-                    if (mousePos != null)
+                    if (mousePos != null) {
                         l.setLocation(mousePos.x - l.getWidth() / 2, mousePos.y - l.getHeight() / 2);
+                        repaint();
+                    }
                 }
             }
         });
@@ -81,12 +83,16 @@ public class CurvePanel extends JPanel {
         l.setLocation(x-size/2, y-size/2);
         l.setSize(size, size);
         markers.add(l);
+        repaint();
+        System.out.println(markers.size());
     }
 
     public void paint (Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
         drawAxis (g2);
+        drawConnections(g2);
+        drawBSpline(g2);
     }
 
     private void drawAxis (Graphics2D g2) {
@@ -106,6 +112,65 @@ public class CurvePanel extends JPanel {
             if (i != 0)
                 g2.drawString(Integer.toString(i), w/2 + 5, y + 5);
         }
+    }
+
+    private void drawConnections (Graphics2D g2) {
+        int x0, y0, s;
+        if (!markers.isEmpty()) {
+            x0 = markers.get(0).getLocation().x;
+            y0 = markers.get(0).getLocation().y;
+            s = (int)(markers.get(0).getSize().getWidth()/2);
+        } else return;
+        for (int i = 1; i < markers.size(); i++) {
+            Point p = markers.get(i).getLocation();
+            g2.drawLine(x0 + s, y0 + s, p.x + s, p.y + s);
+            x0 = p.x;
+            y0 = p.y;
+        }
+    }
+
+    private void drawBSpline (Graphics2D g2) {
+        if (markers.size() < 4) return;
+        for (int i = 1; i < markers.size()-2; i++) {
+            Point[] arg = {markers.get(i-1).getLocation(),
+                    markers.get(i).getLocation(),
+                    markers.get(i+1).getLocation(),
+                    markers.get(i+2).getLocation()};
+            Point[] p = getBSplinePoints(arg);
+            for (int j = 0; j < p.length; j++) {
+                g2.drawLine(p[j].x, p[j].y, p[j].x, p[j].y);
+                //System.out.println(j + ": " + p[j].x + " " + p[j].y);
+            }
+        }
+    }
+
+    private Point[] getBSplinePoints (Point[] g) {
+        float[][] M = {{-1, 3, -3, 1},
+                {3, -6, 3, 0},
+                {-3, 0, 3, 0},
+                {1, 4, 1, 0}};
+        float k = 1f/6;
+        int n = 50;
+        Point[] res = new Point[n];
+        for (int np = 0; np < n; np++) {
+            float px = 0;
+            float py = 0;
+            for (int i = 0; i < 4; i++) {
+                float x = 0;
+                float y = 0;
+                for (int j = 0; j < 4; j++) {
+                    x += M[i][j] * g[j].x;
+                    y += M[i][j] * g[j].y;
+                }
+                //System.out.println(x);
+                x *= Math.pow(1f/(n-1) * np, 3-i) * k;
+                y *= Math.pow(1f/(n-1) * np, 3-i) * k;
+                px += x;
+                py += y;
+            }
+            res[np] = new Point((int)px, (int)py);
+        }
+        return res;
     }
 
     public Point2D.Float modelToPixel (Point2D.Float mp) {
