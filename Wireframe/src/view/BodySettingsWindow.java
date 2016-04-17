@@ -14,21 +14,23 @@ public class BodySettingsWindow extends JFrame {
     Dimension size = new Dimension(800, 600);
     Dimension curvePanelSize = new Dimension(800, 500);
     CurvePanel curvePanel;
-    ArrayList<Point2D.Float> bodyOriginal;
-    ArrayList<Point2D.Float> bodyCopy;
+    ArrayList<Point2D.Float> body;
+    //ArrayList<Point2D.Float> bodyOriginal;
+    //ArrayList<Point2D.Float> bodyCopy;
     public int mouseMode = 0;
 
     public BodySettingsWindow (ArrayList<Point2D.Float> body) {
-        bodyOriginal = body;
-        if (body != null) {
-            bodyCopy = new ArrayList<Point2D.Float>();
-            for (Point2D.Float p : body) {
-                bodyCopy.add(p);
-            }
-        }
+        this.body = body;
+//        bodyOriginal = body;
+//        if (body != null) {
+//            bodyCopy = new ArrayList<Point2D.Float>();
+//            for (Point2D.Float p : body) {
+//                bodyCopy.add(p);
+//            }
+//        }
 
-        curvePanel = new CurvePanel(curvePanelSize, bodyCopy);
-        add(curvePanel, BorderLayout.NORTH);
+        curvePanel = new CurvePanel(curvePanelSize, this.body);
+        add(curvePanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
         add(buttonPanel, BorderLayout.SOUTH);
@@ -37,8 +39,14 @@ public class BodySettingsWindow extends JFrame {
         applyButton.setAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (bodyCopy != null)
-                    bodyOriginal = bodyCopy;
+                //curvePanel.getBody();
+                //if (bodyCopy != null) {
+                //    bodyOriginal = bodyCopy;
+                if (curvePanel.getCurve() != null) {
+                    for (Point2D.Float p : curvePanel.getCurve()) {
+                        System.out.println(p);
+                    }
+                }
             }
         });
         applyButton.setText("Apply");

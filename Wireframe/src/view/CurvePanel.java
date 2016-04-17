@@ -23,10 +23,12 @@ public class CurvePanel extends JPanel {
     private MouseMode currentMouseMode = MouseMode.MOVE;
 
     CurvePanel(Dimension d, ArrayList<Point2D.Float> body) {
+        setSize(d);
         setPreferredSize(d);
         ArrayList<Point2D.Float> gpoints = body;
-        if (gpoints == null)
+        if (gpoints == null) {
             gpoints = new ArrayList<>();
+        }
         scaleRanges(gpoints);
         setLayout(null);
 
@@ -34,27 +36,27 @@ public class CurvePanel extends JPanel {
         for (Point2D.Float p : gpoints) {
             float mx = p.x;
             float my = p.y;
-            int x = (int)modelToPixel(new Point2D.Float(mx, 0)).getX();
-            int y = (int)modelToPixel(new Point2D.Float(0, my)).getY();
+            int x = (int)modelToPixel(new Point2D.Float(mx, my)).getX();
+            int y = (int)modelToPixel(new Point2D.Float(mx, my)).getY();
             createMarker(x, y);
-
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e);
-                    if (currentMouseMode == MouseMode.REMOVE) currentMouseMode = MouseMode.MOVE;
-                    if (currentMouseMode != MouseMode.ADD) return;
-                    createMarker(e.getX(), e.getY());
-                    currentMouseMode = MouseMode.MOVE;
-                }
-            });
         }
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (currentMouseMode == MouseMode.REMOVE) currentMouseMode = MouseMode.MOVE;
+                if (currentMouseMode != MouseMode.ADD) return;
+                createMarker(e.getX(), e.getY());
+                currentMouseMode = MouseMode.MOVE;
+            }
+        });
     }
 
     public void createMarker (int x, int y) {
         int size = 10;
         CurvePanel thisPanel = this;
-        JLabel l = new JLabel("o");
+        JLabel l = new JLabel(new ImageIcon("./Wireframe/icons/marker.png"));
         l.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -80,8 +82,9 @@ public class CurvePanel extends JPanel {
             }
         });
         add(l);
+        l.setSize(l.getPreferredSize());
         l.setLocation(x-size/2, y-size/2);
-        l.setSize(size, size);
+        //l.setSize(size, size);
         markers.add(l);
         repaint();
         System.out.println(markers.size());
@@ -89,6 +92,7 @@ public class CurvePanel extends JPanel {
 
     public void paint (Graphics g) {
         super.paint(g);
+        revalidate();
         Graphics2D g2 = (Graphics2D) g;
         drawAxis (g2);
         drawConnections(g2);
@@ -119,7 +123,7 @@ public class CurvePanel extends JPanel {
         if (!markers.isEmpty()) {
             x0 = markers.get(0).getLocation().x;
             y0 = markers.get(0).getLocation().y;
-            s = (int)(markers.get(0).getSize().getWidth()/2);
+            s = (int)(markers.get(0).getSize().getWidth()/2 );
         } else return;
         for (int i = 1; i < markers.size(); i++) {
             Point p = markers.get(i).getLocation();
@@ -130,6 +134,8 @@ public class CurvePanel extends JPanel {
     }
 
     private void drawBSpline (Graphics2D g2) {
+        if (markers.isEmpty()) return;
+        int s = (int)(markers.get(0).getSize().getWidth()/2 );
         if (markers.size() < 4) return;
         for (int i = 1; i < markers.size()-2; i++) {
             Point[] arg = {markers.get(i-1).getLocation(),
@@ -137,8 +143,13 @@ public class CurvePanel extends JPanel {
                     markers.get(i+1).getLocation(),
                     markers.get(i+2).getLocation()};
             Point[] p = getBSplinePoints(arg);
-            for (int j = 0; j < p.length; j++) {
-                g2.drawLine(p[j].x, p[j].y, p[j].x, p[j].y);
+
+            int x0 = p[0].getLocation().x;
+            int y0 = p[0].getLocation().y;
+            for (int j = 1; j < p.length; j++) {
+                g2.drawLine(x0 + s, y0 + s-1, p[j].x + s, p[j].y + s-1);
+                x0 = p[j].x;
+                y0 = p[j].y;
                 //System.out.println(j + ": " + p[j].x + " " + p[j].y);
             }
         }
@@ -150,7 +161,7 @@ public class CurvePanel extends JPanel {
                 {-3, 0, 3, 0},
                 {1, 4, 1, 0}};
         float k = 1f/6;
-        int n = 50;
+        int n = 5;
         Point[] res = new Point[n];
         for (int np = 0; np < n; np++) {
             float px = 0;
@@ -176,12 +187,21 @@ public class CurvePanel extends JPanel {
     public Point2D.Float modelToPixel (Point2D.Float mp) {
         float nx, ny;
         float x = mp.x;
-        float y = mp.y;;
+        float y = mp.y;
         nx = (hw + x)/(2*hw);
         ny = (hh + y)/(2*hh);
-        nx = nx*getPreferredSize().width;
-        ny = ny*getPreferredSize().height;
-        return new Point2D.Float(nx, ny);
+        nx = nx*getSize().width;
+        ny = ny*getSize().height;
+        return new Point2D.Float(Math.round(nx), Math.round(ny));
+    }
+
+    private Point2D.Float pixelToModel (Point p) {
+        float mx, my;
+        float w = getWidth();
+        float h = getHeight();
+        mx = 0 + hw * (p.x-w/2)/(w/2);
+        my = 0 + hh*(p.y-h/2)/(h/2);
+        return new Point2D.Float(mx, my);
     }
 
     private void scaleRanges (ArrayList<Point2D.Float> gpoints) {
@@ -212,8 +232,34 @@ public class CurvePanel extends JPanel {
         }
     }
 
+    public ArrayList<Point2D.Float> getCurve () {
+        int s = (int)(markers.get(0).getSize().getWidth()/2 );
+        ArrayList<Point2D.Float> res = new ArrayList<>();
+        if (markers.size() < 4) return null;
+
+        for (int i = 1; i < markers.size()-2; i++) {
+            Point[] arg = {markers.get(i - 1).getLocation(),
+                    markers.get(i).getLocation(),
+                    markers.get(i + 1).getLocation(),
+                    markers.get(i + 2).getLocation()};
+            Point[] p = getBSplinePoints(arg);
+            for (int j = 0; j < p.length; j++) {
+                p[j].x += s;
+                p[j].y += s;
+                res.add(pixelToModel(p[j]));
+            }
+        }
+        return res;
+    }
+
     public ArrayList<Point2D.Float> getBody () {
-        return null;
+        int s = (int)(markers.get(0).getSize().getWidth()/2 );
+        ArrayList<Point2D.Float> res = new ArrayList<>();
+        for (JLabel l : markers) {
+            Point p = new Point(l.getLocation().x + s, l.getLocation().y + s);
+            res.add(pixelToModel(p));
+        }
+        return res;
     }
 
     public void setMouseMode (MouseMode mode) {
