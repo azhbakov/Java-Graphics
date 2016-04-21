@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Observable;
 
 /**
  * Created by marting422 on 15.04.2016.
