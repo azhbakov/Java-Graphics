@@ -7,9 +7,13 @@ import java.util.ArrayList;
  */
 public class WiredBody extends Body {
     ArrayList<Segment> segments;
-    public WiredBody (float x, float y, float z, float zx, float yz, float xy) {
-        super(x, y, z, 1, zx, yz, xy, 1);
+    public WiredBody (float x, float y, float z, float rx, float ry, float rz) {
+        super(x, y, z, 1, rx, ry, rz, 1);
         segments = new ArrayList<>();
+    }
+    public WiredBody (ArrayList<Segment> segments, float x, float y, float z, float rx, float ry, float rz) {
+        super(x, y, z, 1, rx, ry, rz, 1);
+        this.segments = segments;
     }
 
     public ArrayList<Segment> getSegments () {

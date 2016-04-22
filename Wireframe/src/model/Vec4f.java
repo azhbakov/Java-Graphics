@@ -5,6 +5,9 @@ package model;
  */
 public class Vec4f {
     float x, y, z, w;
+    public Vec4f () {
+        x = 0; y = 0; z = 0; w = 1;
+    }
     public Vec4f (float x, float y, float z, float w) {
         this.x = x;
         this.y = y;
@@ -49,5 +52,21 @@ public class Vec4f {
         y /= n;
         z /= n;
         return this;
+    }
+    public static Vec4f mulMat (float[][] m, Vec4f v) {
+        Vec4f n = new Vec4f();
+        float s;
+        s = m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3]*v.w;
+        n.x = s;
+        s = m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3]*v.w;
+        n.y = s;
+        s = m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]*v.w;
+        n.z = s;
+        s = m[3][0]*v.x + m[3][1]*v.y + m[3][2]*v.z + m[3][3]*v.w;
+        n.w = s;
+        return n;
+    }
+    public void print () {
+        System.out.println("[" + x + ", " + y + ", " + z + ", " + w + "]");
     }
 }

@@ -23,12 +23,12 @@ class RotationBody extends WiredBody {
             else
                 pu = null;
 
-            Vec3f c = new Vec3f(0, pc.y, pc.x); // segment start
-            Vec3f u; // up
+            Vec4f c = new Vec4f(0, pc.y, pc.x, 1); // segment start
+            Vec4f u; // up
             float rad = c.z;
             float radUp;
             if (pu != null) {
-                u = new Vec3f(0, pu.y, pu.x);
+                u = new Vec4f(0, pu.y, pu.x, 1);
                 radUp = u.z;
             } else {
                 u = null;
@@ -41,9 +41,9 @@ class RotationBody extends WiredBody {
                 // segment up
                 if (u != null) {
                     segments.add(new Segment(c, u));
-                    u = new Vec3f(radUp*(float)Math.sin(angle), radUp*(float)Math.cos(angle), u.z);
+                    u = new Vec4f(radUp*(float)Math.sin(angle), radUp*(float)Math.cos(angle), u.z, 1);
                 }
-                Vec3f r = new Vec3f(rad*(float)Math.sin(angle), rad*(float)Math.cos(angle), c.z);
+                Vec4f r = new Vec4f(rad*(float)Math.sin(angle), rad*(float)Math.cos(angle), c.z, 1);
                 segments.add(new Segment(c, r));
                 c = r;
                 angle += angleStep;
