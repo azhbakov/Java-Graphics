@@ -13,10 +13,10 @@ public class Camera extends Body {
     Vec4f up;
     float[][] m = new float[4][4]; // mcam
     float[][] p = new float[4][4];
-    float sw = 700;
-    float sh = 400;
-    float zf = 10;
-    float zb = 100;
+    float sw = 4;
+    float sh = 3;
+    float zf = 0.1f;
+    float zb = 10;
 
     public Camera (Graphics2D g2, float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
         super(x, y, z, 1, 0, 0, 0, 1);
@@ -60,25 +60,11 @@ public class Camera extends Body {
     }
 
     private void calcP () {
-        p[0][0] = 2*zf/sw;
-        p[0][1] = 0;
-        p[0][2] = 0;
-        p[0][3] = 0;
-
-        p[1][0] = 0;
-        p[1][1] = 2*zf/ sh;
-        p[1][2] = 0;
-        p[1][3] = 0;
-
-        p[2][0] = 0;
-        p[2][1] = 0;
-        p[2][2] = zb/(zb-zf);
-        p[2][3] = -zf*zb/(zb-zf);
-
-        p[3][0] = 0;
-        p[3][1] = 0;
-        p[3][2] = 1;
-        p[3][3] = 0;
+        p[0][0] = 2*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+        p[1][0] = 0; p[1][1] = 2*zf/sh; p[1][2] = 0; p[1][3] = 0;
+        p[2][0] = 0; p[2][1] = 0; p[2][2] = zb/(zb-zf); p[2][3] = -zf*zb/(zb-zf);
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1; p[3][3] = 0;
+        printMat(p);
     }
 
     public void renderWire (WiredBody wiredBody) {
@@ -91,7 +77,9 @@ public class Camera extends Body {
             Vec4f inCameraSpace2 = Vec4f.mulMat(m, inWorld2);
 
             Vec4f proj1 = Vec4f.mulMat(p, inCameraSpace1);
+            //proj1.div(proj1.w);
             Vec4f proj2 = Vec4f.mulMat(p, inCameraSpace2);
+            //proj2.div(proj2.w);
 
             System.out.println("In model space: ");
             s.p1.print();

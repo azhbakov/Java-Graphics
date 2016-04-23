@@ -51,6 +51,7 @@ public class Vec4f {
         x /= n;
         y /= n;
         z /= n;
+        w /= n;
         return this;
     }
     public static Vec4f mulMat (float[][] m, Vec4f v) {
