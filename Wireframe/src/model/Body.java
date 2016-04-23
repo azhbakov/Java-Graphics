@@ -1,10 +1,13 @@
 package model;
 
+import java.util.ArrayList;
+
 /**
  * Created by marting422 on 21.04.2016.
  */
 public class Body {
     Transform transform;
+    ArrayList<Segment> xyz;
     float[][] m;
 
     public Body (float x, float y, float z, float w, float rx, float ry, float rz, float rw) {
@@ -14,6 +17,10 @@ public class Body {
         transform = new Transform(new Vec4f(x, y, z, w), new Vec4f(rx, ry, rz, rw));
         //m = new float[4][4];
         calcM();
+        xyz = new ArrayList<>();
+        xyz.add(new Segment(0,0,0,1, 1,0,0,1));
+        xyz.add(new Segment(0,0,0,1, 0,1,0,1));
+        xyz.add(new Segment(0,0,0,1, 0,0,1,1));
     }
     public Body (Vec4f pos, Vec4f rot) {
         rot.x = rot.x/180 * (float) Math.PI;
@@ -136,5 +143,9 @@ public class Body {
             }
         }
         return res;
+    }
+
+    public ArrayList<Segment> getXyz () {
+        return xyz;
     }
 }

@@ -1,6 +1,6 @@
 package model;
 
-import view.BodySettingsWindow;
+import view.CameraScreen;
 
 import java.awt.*;
 
@@ -8,19 +8,19 @@ import java.awt.*;
  * Created by marting422 on 21.04.2016.
  */
 public class Camera extends Body {
-    Graphics2D g2;
+    CameraScreen cameraScreen;
     Vec4f target;
     Vec4f up;
     float[][] m = new float[4][4]; // mcam
     float[][] p = new float[4][4];
-    float sw = 4;
-    float sh = 3;
-    float zf = 0.1f;
-    float zb = 10;
+    float sw = 40;
+    float sh = 30;
+    float zf = 1;
+    float zb = 20;
 
-    public Camera (Graphics2D g2, float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
+    public Camera (CameraScreen cameraScreen, float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
         super(x, y, z, 1, 0, 0, 0, 1);
-        this.g2 = g2;
+        this.cameraScreen = cameraScreen;
         target = new Vec4f(tx, ty, tz, 1);
         up = new Vec4f(ux, uy, uz, 1);
         calcM();
@@ -60,11 +60,16 @@ public class Camera extends Body {
     }
 
     private void calcP () {
-        p[0][0] = 2*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-        p[1][0] = 0; p[1][1] = 2*zf/sh; p[1][2] = 0; p[1][3] = 0;
-        p[2][0] = 0; p[2][1] = 0; p[2][2] = zb/(zb-zf); p[2][3] = -zf*zb/(zb-zf);
-        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1; p[3][3] = 0;
-        printMat(p);
+//        p[0][0] = 2*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+//        p[1][0] = 0; p[1][1] = 2*zf/sh; p[1][2] = 0; p[1][3] = 0;
+//        p[2][0] = 0; p[2][1] = 0; p[2][2] = zb/(zb-zf); p[2][3] = -zf*zb/(zb-zf);
+//        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1; p[3][3] = 0;
+
+        p[0][0] = zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 1f/2;
+        p[1][0] = 0; p[1][1] = zf/sh; p[1][2] = 0; p[1][3] = 1f/2;
+        p[2][0] = 0; p[2][1] = 0; p[2][2] = 1/(zb-zf); p[2][3] = -zf/(zb-zf);
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 0; p[3][3] = 1;
+        //printMat(p);
     }
 
     public void renderWire (WiredBody wiredBody) {
@@ -81,18 +86,50 @@ public class Camera extends Body {
             Vec4f proj2 = Vec4f.mulMat(p, inCameraSpace2);
             //proj2.div(proj2.w);
 
-            System.out.println("In model space: ");
-            s.p1.print();
-            s.p2.print();
-            System.out.println("In world space: ");
-            inWorld1.print();
-            inWorld2.print();
-            System.out.println("In camera space: ");
-            inCameraSpace1.print();
-            inCameraSpace2.print();
-            System.out.println("In projection space: ");
-            proj1.print();
-            proj2.print();
+            //System.out.println("In model space: ");
+            //s.p1.print();
+            //s.p2.print();
+            //System.out.println("In world space: ");
+            //inWorld1.print();
+            //inWorld2.print();
+            //System.out.println("In camera space: ");
+            //inCameraSpace1.print();
+            //inCameraSpace2.print();
+            //System.out.println("In projection space: ");
+            //proj1.print();
+            //proj2.print();
+
+            if (cameraScreen != null) {
+                cameraScreen.drawUVLine(proj1.x, proj1.y, proj2.x, proj2.y);
+            }
         }
+    }
+
+    public void renderXyz (WiredBody wiredBody) {
+        float[][] w = wiredBody.getM();
+        Color[] c = {Color.red, Color.green, Color.blue};
+        String[] str = {"X", "Y", "Z"};
+        int n = 0;
+        for (Segment s : wiredBody.getXyz()) {
+            Vec4f inWorld1 = Vec4f.mulMat(w, s.p1);
+            Vec4f inWorld2 = Vec4f.mulMat(w, s.p2);
+
+            Vec4f inCameraSpace1 = Vec4f.mulMat(m, inWorld1);
+            Vec4f inCameraSpace2 = Vec4f.mulMat(m, inWorld2);
+
+            Vec4f proj1 = Vec4f.mulMat(p, inCameraSpace1);
+            //proj1.div(proj1.w);
+            Vec4f proj2 = Vec4f.mulMat(p, inCameraSpace2);
+            //proj2.div(proj2.w);
+
+            if (cameraScreen != null) {
+                cameraScreen.drawUVLine(proj1.x, proj1.y, proj2.x, proj2.y, str[n], c[n]);
+            }
+            n++;
+        }
+    }
+
+    public void setCameraScreen (CameraScreen cameraScreen) {
+        this.cameraScreen = cameraScreen;
     }
 }

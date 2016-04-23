@@ -10,19 +10,28 @@ import java.util.ArrayList;
  */
 public class World {
     ArrayList<WiredBody> bodies = new ArrayList<>();
-    Camera mainCamera;
+    //Camera mainCamera;
 
-    public World (Camera camera) {
-        mainCamera = camera;
-    }
+//    public World (Camera camera) {
+//        mainCamera = camera;
+//    }
 
     public void addBody (WiredBody body) {
         bodies.add(body);
     }
 
-    public void render () {
-        for (WiredBody b : bodies) {
-            mainCamera.renderWire(b);
+    public int getBodiesNum () {
+        return bodies.size();
+    }
+    public WiredBody getBody (int index) {
+        try {
+            return bodies.get(index);
+        } catch (IndexOutOfBoundsException ex) {
+            return null;
         }
+    }
+
+    public ArrayList<WiredBody> getBodies () {
+        return bodies;
     }
 }

@@ -10,6 +10,9 @@ import java.util.ArrayList;
 public class Curve {
     ArrayList<Point2D.Float> points;
 
+    public Curve () {
+        points = new ArrayList<>();
+    }
     public Curve (ArrayList<Point2D.Float> points) {
         this.points = points;
     }

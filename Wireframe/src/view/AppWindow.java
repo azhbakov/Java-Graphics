@@ -85,7 +85,9 @@ public class AppWindow extends JFrame implements Observer {
     private void initScrollPane () {
         //JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         //panel.add(zoneA);
-        JPanel content = new JPanel();
+        CameraScreen content = new CameraScreen(logic);
+        content.setPreferredSize(new Dimension(800, 600));
+        logic.addCameraScreen(content);
         //content.add(new BodySettingsWindow(null));
 
         JScrollPane scrollPane = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -161,7 +163,7 @@ public class AppWindow extends JFrame implements Observer {
         File f = FileUtils.getOpenFileName(this, "txt", "Text file");
         if (f == null) return;
         try {
-            logic.readSettings(f);
+            //logic.readSettings(f);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Bad file format.",
@@ -227,6 +229,6 @@ public class AppWindow extends JFrame implements Observer {
     public void showSettings () {
         //SettingsWindow settingsWindow = new SettingsWindow(logic);
         //settingsWindow.setLocationRelativeTo(this);
-        BodySettingsWindow w = new BodySettingsWindow(null);
+        BodySettingsWindow w = new BodySettingsWindow(logic);
     }
 }

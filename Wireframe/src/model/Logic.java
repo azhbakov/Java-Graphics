@@ -1,7 +1,12 @@
 package model;
 
+import view.CameraScreen;
+
+import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Scanner;
 
@@ -9,149 +14,51 @@ import java.util.Scanner;
  * Created by Martin on 01.04.2016.
  */
 public class Logic extends Observable {
-    final String defaultSettings = "Iso/Data/settings.txt";
-
-    float a = 10, b = 20, c = 10, d = 20;
-    int k, m;
-    int n;
-
-    boolean showGrid = true;
-    boolean showIsolines = true;
-    boolean lerp = true;
+    World w;
+    Camera c;
 
     public Logic () {
         try {
-            readSettings(null);
+            //c = new Camera(null, 3,2,1, 3,0,2, 0,1,0);
+            c = new Camera(null, 3,2,3, 0,0,0, 0,1,0);
+
+            w = new World();
+
+            //ArrayList<Segment> segments = new ArrayList<>();
+            //segments.add(new Segment(0,0,0,1, 0,0,1,1));
+            //w.addBody(new WiredBody(segments, 2, 0, 3, 0,90,0));
+            ArrayList<Point2D.Float> markers = new ArrayList<>();
+            markers.add(new Point2D.Float(0, 1));
+            markers.add(new Point2D.Float(1, 1));
+            markers.add(new Point2D.Float(2, 2));
+            markers.add(new Point2D.Float(3, 2));
+            //w.addBody(new RotationBody(markers, 8, 3,0,8, 0,0,0));
+            w.addBody(new RotationBody(markers, 8, 0,0,0, 0,0,0));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public void init () {
-
-    }
-
-    public void readSettings (File f) throws Exception {
-        if (f == null)
-            f = new File(defaultSettings);
-        int k, m, n;
-        Color[] legendColors;
-        Color isoColor;
-        Scanner reader = new Scanner(f);
-
-        k = reader.nextInt();
-        m = reader.nextInt();
-        n = reader.nextInt();
-        legendColors = new Color[n + 1];
-        for (int i = 0; i <= n; i++) {
-            legendColors[i] = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
+    private void render () {
+        for (WiredBody b : w.getBodies()) {
+            c.renderWire(b);
+            c.renderXyz(b);
         }
-        isoColor = new Color(reader.nextInt(), reader.nextInt(), reader.nextInt());
-        this.k = k;
-        this.m = m;
-        this.n = n;
-
-        init();
-        setChanged(); notifyObservers();
     }
 
-
-    public float getA() {
-        return a;
+    public void updateCameraScreen () {
+        render();
     }
 
-    public void setA(float a) {
-        this.a = a;
-        init();
-        setChanged(); notifyObservers();
+    public void addCameraScreen (CameraScreen cameraScreen) {
+        c.setCameraScreen(cameraScreen);
     }
 
-    public float getB() {
-        return b;
+    public World getWorld () { return w; }
+
+    public void notifyObservers () {
+        setChanged();
+        super.notifyObservers();
     }
 
-    public void setB(float b) {
-        this.b = b;
-        init();
-        setChanged(); notifyObservers();
-    }
-
-    public float getC() {
-        return c;
-    }
-
-    public void setC(float c) {
-        this.c = c;
-        init();
-        setChanged(); notifyObservers();
-    }
-
-    public float getD() {
-        return d;
-    }
-
-    public void setD(float d) {
-        this.d = d;
-        init();
-        //System.out.println("Set d " + d);
-        setChanged(); notifyObservers();
-    }
-
-    public int getK() {
-        return k;
-    }
-
-    public void setK(int k) {
-        if (k < 2) return;
-        this.k = k;
-        init();
-        setChanged(); notifyObservers();
-    }
-
-    public int getM() {
-        return m;
-    }
-
-    public void setM(int m) {
-        if (m < 2) return;
-        this.m = m;
-        init();
-        setChanged(); notifyObservers();
-    }
-
-    public int getN() {
-        return n;
-    }
-
-    public void setN(int n) {
-        this.n = n;
-        init();
-        setChanged(); notifyObservers();
-    }
-
-    public boolean showIsolines() {
-        return showIsolines;
-    }
-
-    public void setShowIsolines(boolean showIsolines) {
-        this.showIsolines = showIsolines;
-        setChanged(); notifyObservers();
-    }
-
-    public boolean showGrid() {
-        return showGrid;
-    }
-
-    public void setShowGrid(boolean showGrid) {
-        this.showGrid = showGrid; setChanged(); notifyObservers();
-    }
-
-    public boolean lerp() {
-        return lerp;
-    }
-
-    public void setLerp(boolean lerp) {
-        this.lerp = lerp;
-        setChanged(); notifyObservers();
-    }
 }
