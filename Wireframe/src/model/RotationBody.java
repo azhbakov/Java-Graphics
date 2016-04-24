@@ -8,8 +8,9 @@ import java.util.ArrayList;
  */
 public class RotationBody extends WiredBody {
     ArrayList<Point2D.Float> markers;
-    int turns;
+    //int turns;
     Curve curve;
+    int n, m, k;
 
 //    public RotationBody (ArrayList<Point2D.Float> markers, Curve curve, int turns, float x, float y, float z, float zx, float yz, float xy) {
 //        super(x, y, z, zx, yz, xy);
@@ -19,10 +20,13 @@ public class RotationBody extends WiredBody {
 //        recalculate();
 //    }
 
-    public RotationBody (ArrayList<Point2D.Float> markers, int turns, float x, float y, float z, float zx, float yz, float xy) {
+    public RotationBody (ArrayList<Point2D.Float> markers, int n,int m, int k, float x, float y, float z, float zx, float yz, float xy) {
         super(x, y, z, zx, yz, xy);
         this.markers = markers;
-        this.turns = turns;
+        this.n = n;
+        this.m = m;
+        this.k = k;
+
         recalculate();
     }
 
@@ -31,18 +35,19 @@ public class RotationBody extends WiredBody {
 //        recalculate ();
 //    }
 
-    public void setTurns (int turns) {
-        this.turns = turns;
-        recalculate();
-    }
+//    public void setTurns (int turns) {
+//        this.turns = turns;
+//        recalculate();
+//    }
 
     private void recalculate () {
         segments.clear();
         Point2D.Float[] ar = new Point2D.Float[markers.size()];
-        System.out.println("MARKERS SIZE: " + markers.size());
-        curve = BezierCalculator.getBSplineCurve(markers.toArray(ar));
+        //System.out.println("MARKERS SIZE: " + markers.size());
+        curve = BezierCalculator.getBSplineCurve(markers.toArray(ar), n, k);
         if (curve == null) return;
         ArrayList<Point2D.Float> points = curve.getPoints();
+        //System.out.println("CURVE SIZE: " + points.size());
         for (int i = 0; i < points.size(); i++) { // for each curve point do rotation and add segment current to up and current to right
 
             Point2D.Float pc = points.get(i); // current 2d curve point
@@ -64,19 +69,23 @@ public class RotationBody extends WiredBody {
                 radUp = 0;
             }
 
-            float angleStep = (float)(2*Math.PI/turns);
+            float angleStep = (float)(2*Math.PI/(m*k));
             float angle = angleStep;
-            for (int j = 0; j < turns; j++) {
+            for (int j = 0; j < m*k; j++) {
                 // segment up
                 if (u != null) {
-                    segments.add(new Segment(c, u));
+                    if (j%k == 0) {
+                        segments.add(new Segment(c, u));
+                    }
                     //System.out.println("Added up:");
                     //c.print();
                     //u.print();
                     u = new Vec4f(radUp*(float)Math.cos(angle), u.y, radUp*(float)Math.sin(angle), 1);
                 }
                 Vec4f r = new Vec4f(rad*(float)Math.cos(angle), c.y, rad*(float)Math.sin(angle), 1);
-                segments.add(new Segment(c, r));
+                if (i%k == 0 || u == null) {
+                    segments.add(new Segment(c, r));
+                }
                 //System.out.println("Added right:");
                 //c.print();
                 //r.print();
@@ -90,8 +99,11 @@ public class RotationBody extends WiredBody {
 //        return curve;
 //    }
 
-    public void setMarkers (ArrayList<Point2D.Float> markers) {
+    public void setMarkers (ArrayList<Point2D.Float> markers, int n, int m, int k) {
         this.markers = markers;
+        this.n = n;
+        this.m = m;
+        this.k = k;
         recalculate();
     }
 

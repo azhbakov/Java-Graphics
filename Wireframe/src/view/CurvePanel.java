@@ -18,8 +18,10 @@ public class CurvePanel extends JPanel {
     private float DEFAULTHW = 5f;
 
     //private ArrayList<Point2D.Float> gpoints;
-    private ArrayList<JLabel> markers;
+    private ArrayList<Marker> markers;
     private float hw, hh; // halfwidth, halfheight in model space
+    int n, k;
+    Color c;
 
     public enum MouseMode {MOVE, ADD, REMOVE};
     private MouseMode currentMouseMode = MouseMode.MOVE;
@@ -37,7 +39,9 @@ public class CurvePanel extends JPanel {
                 super.mouseClicked(e);
                 if (currentMouseMode == MouseMode.REMOVE) currentMouseMode = MouseMode.MOVE;
                 if (currentMouseMode != MouseMode.ADD) return;
-                createMarker(e.getX(), e.getY());
+                //createMarker(e.getX(), e.getY());
+                markers.add(new Marker(createLabel(), pixelToModel(e.getPoint())));
+                repaint();
                 currentMouseMode = MouseMode.MOVE;
             }
         });
@@ -59,6 +63,9 @@ public class CurvePanel extends JPanel {
 //        }
 //    }
     public void loadPoints (ArrayList<Point2D.Float> gpoints) {
+        for (Marker m : markers) {
+            remove(m.l);
+        }
         markers.clear();
         if (gpoints == null) {
             scaleRanges(null);
@@ -66,15 +73,17 @@ public class CurvePanel extends JPanel {
         }
         scaleRanges(gpoints);
         for (Point2D.Float p : gpoints) {
-            float mx = p.x;
-            float my = p.y;
-            int x = (int)modelToPixel(new Point2D.Float(mx, my)).getX();
-            int y = (int)modelToPixel(new Point2D.Float(mx, my)).getY();
-            createMarker(x, y);
+            //float mx = p.x;
+            //float my = p.y;
+            //int x = modelToPixel(new Point2D.Float(mx, my)).getX();
+            //int y = (int)modelToPixel(new Point2D.Float(mx, my)).getY();
+            //createMarker(x, y);
+            markers.add(new Marker(createLabel(), p));
         }
+        repaint();
     }
 
-    public void createMarker (int x, int y) {
+    public JLabel createLabel () {
         int size = 10;
         CurvePanel thisPanel = this;
         JLabel l = new JLabel(new ImageIcon("./Wireframe/icons/marker.png"));
@@ -85,7 +94,13 @@ public class CurvePanel extends JPanel {
                 if (currentMouseMode == MouseMode.MOVE) {
                     Point mousePos = thisPanel.getMousePosition();
                     if (mousePos != null) {
-                        l.setLocation(mousePos.x - l.getWidth() / 2, mousePos.y - l.getHeight() / 2);
+                        //l.setLocation(mousePos.x - l.getWidth() / 2, mousePos.y - l.getHeight() / 2);
+                        for (Marker m : markers) {
+                            if (m.hasLabel(l)) {
+                                m.setPos(pixelToModel(mousePos));
+                                break;
+                            }
+                        }
                         repaint();
                     }
                 }
@@ -97,17 +112,23 @@ public class CurvePanel extends JPanel {
                 super.mouseClicked(e);
                 if (currentMouseMode == MouseMode.REMOVE) {
                     thisPanel.remove(l);
-                    markers.remove(l);
+                    for (Marker m : markers) {
+                        if (m.hasLabel(l)) {
+                            markers.remove(m);
+                            break;
+                        }
+                    }
                     repaint();
                 }
             }
         });
         add(l);
         l.setSize(l.getPreferredSize());
-        l.setLocation(x-size/2, y-size/2);
+        return l;
+        //l.setLocation(x-size/2, y-size/2);
         //l.setSize(size, size);
-        markers.add(l);
-        repaint();
+        //markers.add(l);
+        //repaint();
         //System.out.println(markers.size());
     }
 
@@ -117,6 +138,7 @@ public class CurvePanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         drawAxis (g2);
         drawConnections(g2);
+        g2.setColor(c);
         drawBSpline(g2);
     }
 
@@ -140,35 +162,40 @@ public class CurvePanel extends JPanel {
     }
 
     private void drawConnections (Graphics2D g2) {
-        int x0, y0, s;
+        //int x0, y0, s;
+        Point p0;
         if (!markers.isEmpty()) {
-            x0 = markers.get(0).getLocation().x;
-            y0 = markers.get(0).getLocation().y;
-            s = (int)(markers.get(0).getSize().getWidth()/2 );
+            p0 = markers.get(0).getPixelPos();
+            //x0 = markers.get(0).getLocation().x;
+            //y0 = markers.get(0).getLocation().y;
+            //s = (int)(markers.get(0).getSize().getWidth()/2 );
         } else return;
         for (int i = 1; i < markers.size(); i++) {
-            Point p = markers.get(i).getLocation();
-            g2.drawLine(x0 + s, y0 + s, p.x + s, p.y + s);
-            x0 = p.x;
-            y0 = p.y;
+            Point p = markers.get(i).getPixelPos();
+            g2.drawLine(p0.x, p0.y, p.x, p.y);
+            p0 = p;
+//            Point p = markers.get(i).getLocation();
+//            g2.drawLine(x0 + s, y0 + s, p.x + s, p.y + s);
+//            x0 = p.x;
+//            y0 = p.y;
         }
     }
 
     private void drawBSpline (Graphics2D g2) {
         if (markers.isEmpty()) return;
-        int s = (int)(markers.get(0).getSize().getWidth()/2 );
+        //int s = (int)(markers.get(0).getSize().getWidth()/2 );
         if (markers.size() < 4) return;
         for (int i = 1; i < markers.size()-2; i++) {
-            Point[] arg = {markers.get(i-1).getLocation(),
-                    markers.get(i).getLocation(),
-                    markers.get(i+1).getLocation(),
-                    markers.get(i+2).getLocation()};
-            Point[] p = BezierCalculator.getBSplinePoints(arg);
+            Point[] arg = {markers.get(i-1).getPixelPos(),
+                    markers.get(i).getPixelPos(),
+                    markers.get(i+1).getPixelPos(),
+                    markers.get(i+2).getPixelPos()};
+            Point[] p = BezierCalculator.getBSplinePoints(arg, n, k);
 
             int x0 = p[0].getLocation().x;
             int y0 = p[0].getLocation().y;
             for (int j = 1; j < p.length; j++) {
-                g2.drawLine(x0 + s, y0 + s-1, p[j].x + s, p[j].y + s-1);
+                g2.drawLine(x0, y0, p[j].x, p[j].y);
                 x0 = p[j].x;
                 y0 = p[j].y;
                 //System.out.println(j + ": " + p[j].x + " " + p[j].y);
@@ -178,7 +205,7 @@ public class CurvePanel extends JPanel {
 
 
 
-    public Point2D.Float modelToPixel (Point2D.Float mp) {
+    protected Point modelToPixel (Point2D.Float mp) {
         float nx, ny;
         float x = mp.x;
         float y = mp.y;
@@ -186,10 +213,10 @@ public class CurvePanel extends JPanel {
         ny = (hh + y)/(2*hh);
         nx = nx*getSize().width;
         ny = ny*getSize().height;
-        return new Point2D.Float(Math.round(nx), Math.round(ny));
+        return new Point(Math.round(nx), Math.round(ny));
     }
 
-    private Point2D.Float pixelToModel (Point p) {
+    protected Point2D.Float pixelToModel (Point p) {
         float mx, my;
         float w = getWidth();
         float h = getHeight();
@@ -226,39 +253,81 @@ public class CurvePanel extends JPanel {
         }
     }
 
-    public Curve getCurve () {
-        int s = (int)(markers.get(0).getSize().getWidth()/2 );
-        //ArrayList<Point2D.Float> res = new ArrayList<>();
-        Curve res = new Curve();
-        if (markers.size() < 4) return null;
-
-        for (int i = 1; i < markers.size()-2; i++) {
-            Point[] arg = {markers.get(i - 1).getLocation(),
-                    markers.get(i).getLocation(),
-                    markers.get(i + 1).getLocation(),
-                    markers.get(i + 2).getLocation()};
-            Point[] p = BezierCalculator.getBSplinePoints(arg);
-            for (int j = 0; j < p.length; j++) {
-                p[j].x += s;
-                p[j].y += s;
-                Point2D.Float pm = pixelToModel(p[j]);
-                res.addPoint(pm.x, pm.y);
-            }
-        }
-        return res;
-    }
+//    public Curve getCurve () {
+//        int s = (int)(markers.get(0).getSize().getWidth()/2 );
+//        //ArrayList<Point2D.Float> res = new ArrayList<>();
+//        Curve res = new Curve();
+//        if (markers.size() < 4) return null;
+//
+//        for (int i = 1; i < markers.size()-2; i++) {
+//            Point[] arg = {markers.get(i - 1).getLocation(),
+//                    markers.get(i).getLocation(),
+//                    markers.get(i + 1).getLocation(),
+//                    markers.get(i + 2).getLocation()};
+//            Point[] p = BezierCalculator.getBSplinePoints(arg, n, k);
+//            for (int j = 0; j < p.length; j++) {
+//                p[j].x += s;
+//                p[j].y += s;
+//                Point2D.Float pm = pixelToModel(p[j]);
+//                res.addPoint(pm.x, pm.y);
+//            }
+//        }
+//        return res;
+//    }
 
     public ArrayList<Point2D.Float> getMarkers () {
-        int s = (int)(markers.get(0).getSize().getWidth()/2 );
+        //int s = (int)(markers.get(0).getSize().getWidth()/2 );
         ArrayList<Point2D.Float> res = new ArrayList<>();
-        for (JLabel l : markers) {
-            Point p = new Point(l.getLocation().x + s, l.getLocation().y + s);
-            res.add(pixelToModel(p));
+        for (Marker m : markers) {
+            res.add(m.getModelPos());
         }
         return res;
     }
 
     public void setMouseMode (MouseMode mode) {
         currentMouseMode = mode;
+    }
+
+    public void setNK (int n, int k) {
+        this.n = n;
+        this.k = k;
+        repaint();
+    }
+    public void setColor (int r, int g, int b) {
+        c = new Color(r, g, b);
+        repaint();
+    }
+
+    class Marker {
+        Point2D.Float modelPos;
+        public JLabel l;
+
+        public Marker (JLabel l, Point2D.Float mp) {
+            this.l = l;
+            setPos(mp);
+        }
+        public void setPos (Point2D.Float mp) {
+            modelPos = mp;
+            int size = l.getWidth();
+            Point p = modelToPixel(mp);
+            p.x -= size/2;
+            p.y -= size/2;
+            l.setLocation(p);
+        }
+        public Point2D.Float getModelPos () {
+            return modelPos;
+        }
+
+        public Point getPixelPos () {
+            Point p = modelToPixel(modelPos);
+            int size = l.getWidth();
+            //p.x -= size/2;
+            //p.y += size/2;
+            return p;
+        }
+
+        public boolean hasLabel (JLabel l) {
+            return this.l.equals(l);
+        }
     }
 }

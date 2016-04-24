@@ -4,20 +4,24 @@ import javafx.geometry.Point3D;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Observable;
 
 /**
  * Created by marting422 on 21.04.2016.
  */
 public class World {
     ArrayList<WiredBody> bodies = new ArrayList<>();
-    //Camera mainCamera;
+    Camera mainCamera;
 
-//    public World (Camera camera) {
-//        mainCamera = camera;
-//    }
+    public World (Camera camera) {
+        mainCamera = camera;
+        bodies.add(new WiredBody(0,0,0,0,0,0));
+    }
 
     public void addBody (WiredBody body) {
         bodies.add(body);
+//        setChanged();
+//        notifyObservers();
     }
 
     public int getBodiesNum () {
@@ -33,5 +37,15 @@ public class World {
 
     public ArrayList<WiredBody> getBodies () {
         return bodies;
+    }
+
+    public void translateCamera (Vec3f dir) {
+        mainCamera.translate(dir);
+//        setChanged();
+//        notifyObservers();
+    }
+
+    public void translate (WiredBody b, Vec3f dir) {
+
     }
 }

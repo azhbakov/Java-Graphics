@@ -2,12 +2,14 @@ package view;
 
 
 import model.Logic;
+import model.Vec3f;
 import view.toolbarUtils.ToolbarContent;
 import view.toolbarUtils.ToolbarUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -85,13 +87,67 @@ public class AppWindow extends JFrame implements Observer {
     private void initScrollPane () {
         //JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         //panel.add(zoneA);
-        CameraScreen content = new CameraScreen(logic);
+        CameraScreen content = logic.getCameraScreen();
         content.setPreferredSize(new Dimension(800, 600));
-        logic.addCameraScreen(content);
         //content.add(new BodySettingsWindow(null));
 
         JScrollPane scrollPane = new JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane);
+
+//        setFocusable(true);
+//        requestFocusInWindow();
+//        addKeyListener(new KeyAdapter() {
+//            @Override
+//            public void keyPressed(KeyEvent e) {
+//                super.keyPressed(e);
+//                //int id = e.getID();
+//                //if (id != KeyEvent.KEY_TYPED) return;
+//                //System.out.println(e.getKeyChar());
+//                logic.keyPressed(e.getKeyChar());
+//            }
+//        });
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "w pressed");
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "s pressed");
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "a pressed");
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "d pressed");
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "q pressed");
+        content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0, false), "z pressed");
+        content.getActionMap().put("w pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('w');
+            }
+        });
+        content.getActionMap().put("s pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('s');
+            }
+        });
+        content.getActionMap().put("a pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('a');
+            }
+        });
+        content.getActionMap().put("d pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('d');
+            }
+        });
+        content.getActionMap().put("q pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('q');
+            }
+        });
+        content.getActionMap().put("z pressed", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                logic.keyPressed('z');
+            }
+        });
     }
 
     private void initMenu () {

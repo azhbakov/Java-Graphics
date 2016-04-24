@@ -7,14 +7,16 @@ import java.awt.geom.Point2D;
  * Created by marting422 on 24.04.2016.
  */
 public class BezierCalculator {
-    public static Point2D.Float[] getBSplinePoints (Point2D.Float[] g) {
+    public static Point2D.Float[] getBSplinePoints (Point2D.Float[] g, int n, int k) {
         if (g.length < 4) return null;
         float[][] M = {{-1, 3, -3, 1},
                 {3, -6, 3, 0},
                 {-3, 0, 3, 0},
                 {1, 4, 1, 0}};
-        float k = 1f/6;
-        int n = 15;
+        float c = 1f/6;
+        //int n = 15;
+        //n *= k;
+        n = n + (n-1)*(k-1);
         Point2D.Float[] res = new Point2D.Float[n];
         for (int np = 0; np < n; np++) {
             float px = 0;
@@ -27,8 +29,8 @@ public class BezierCalculator {
                     y += M[i][j] * g[j].y;
                 }
                 //System.out.println(x);
-                x *= Math.pow(1f/(n-1) * np, 3-i) * k;
-                y *= Math.pow(1f/(n-1) * np, 3-i) * k;
+                x *= Math.pow(1f/(n-1) * np, 3-i) * c;
+                y *= Math.pow(1f/(n-1) * np, 3-i) * c;
                 px += x;
                 py += y;
             }
@@ -37,13 +39,14 @@ public class BezierCalculator {
         return res;
     }
 
-    public static Point[] getBSplinePoints (Point[] g) {
+    public static Point[] getBSplinePoints (Point[] g, int n, int k) {
         float[][] M = {{-1, 3, -3, 1},
                 {3, -6, 3, 0},
                 {-3, 0, 3, 0},
                 {1, 4, 1, 0}};
-        float k = 1f/6;
-        int n = 5;
+        float c = 1f/6;
+        //n *= k;
+        n = n + (n-1)*(k-1);
         Point[] res = new Point[n];
         for (int np = 0; np < n; np++) {
             float px = 0;
@@ -56,8 +59,8 @@ public class BezierCalculator {
                     y += M[i][j] * g[j].y;
                 }
                 //System.out.println(x);
-                x *= Math.pow(1f/(n-1) * np, 3-i) * k;
-                y *= Math.pow(1f/(n-1) * np, 3-i) * k;
+                x *= Math.pow(1f/(n-1) * np, 3-i) * c;
+                y *= Math.pow(1f/(n-1) * np, 3-i) * c;
                 px += x;
                 py += y;
             }
@@ -66,7 +69,7 @@ public class BezierCalculator {
         return res;
     }
 
-    public static Curve getBSplineCurve (Point2D.Float[] g) {
+    public static Curve getBSplineCurve (Point2D.Float[] g, int n, int k) {
         if (g.length < 4) return null;
         Curve res = new Curve();
         for (int i = 1; i < g.length-2; i++) {
@@ -74,9 +77,9 @@ public class BezierCalculator {
                     g[i],
                     g[i+1],
                     g[i+2]};
-            Point2D.Float[] p = BezierCalculator.getBSplinePoints(arg);
+            Point2D.Float[] p = BezierCalculator.getBSplinePoints(arg, n, k);
 
-            for (int j = 1; j < p.length; j++) {
+            for (int j = 0; j < p.length; j++) {
                 res.addPoint(p[j]);
                 //System.out.println(j + ": " + p[j].x + " " + p[j].y);
             }
