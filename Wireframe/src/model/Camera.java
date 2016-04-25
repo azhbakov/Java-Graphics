@@ -172,12 +172,71 @@ public class Camera extends Body {
         //calcP();
     }
 
+    public void rotate (Vec4f dir) {
+//        System.out.println();
+        //dir.print();
+        Vec4f u = new Vec4f(up);
+        u.div(u.length());
+//        //u.mul(dir.y);
+        u.w = 1;
+//        u.print();
+//
+        Vec4f r = Vec4f.cross(Vec4f.sub(target,transform.position).div(Vec4f.sub(target,transform.position).length()), u);
+        r.div(r.length());
+//        //r.mul(dir.y);
+        r.w = 1;
+//        r.print();
+
+        //Vec4f total = Vec4f.add(u.mul(dir.y), r.mul(dir.x));
+        applyRotation(r.mul(dir.y));
+        applyRotation(u.mul(dir.x));
+    }
+
+    public void applyRotation (Vec4f axis) {
+        transform.rotation.x = axis.x;
+        transform.rotation.y = axis.y;
+        transform.rotation.z = axis.z;
+//        calcM();
+//        m[0][3] = 0;
+//        m[1][3] = 0;
+//        m[2][3] = 0;
+        float a = transform.rotation.x;
+        float[][] mx = new float[4][4];
+        mx[0][0] = 1; mx[0][1] = 0; mx[0][2] = 0; mx[0][3] = 0;
+        mx[1][0] = 0; mx[1][1] = (float) Math.cos(a); mx[1][2] = -(float) Math.sin(a); mx[1][3] = 0;
+        mx[2][0] = 0; mx[2][1] = (float) Math.sin(a); mx[2][2] = (float) Math.cos(a); mx[2][3] = 0;
+        mx[3][0] = 0; mx[3][1] = 0; mx[3][2] = 0; mx[3][3] = 1;
+        transform.position = Vec4f.mulMat(mx, transform.position);
+        up = Vec4f.mulMat(mx, up);
+
+        a = transform.rotation.y;
+        float[][] my = new float[4][4];
+        my[0][0] = (float) Math.cos(a); my[0][1] = 0; my[0][2] = (float) Math.sin(a); my[0][3] = 0;
+        my[1][0] = 0; my[1][1] = 1; my[1][2] = 0; my[1][3] = 0;
+        my[2][0] = -(float) Math.sin(a); my[2][1] = 0; my[2][2] = (float) Math.cos(a); my[2][3] = 0;
+        my[3][0] = 0; my[3][1] = 0; my[3][2] = 0; my[3][3] = 1;
+        transform.position = Vec4f.mulMat(my, transform.position);
+        up = Vec4f.mulMat(my, up);
+
+        a = transform.rotation.z;
+        float[][] mz = new float[4][4];
+        mz[0][0] = (float) Math.cos(a); mz[0][1] = -(float) Math.sin(a); mz[0][2] = 0; mz[0][3] = 0;
+        mz[1][0] = (float) Math.sin(a); mz[1][1] = (float) Math.cos(a); mz[1][2] = 0; mz[1][3] = 0;
+        mz[2][0] = 0; mz[2][1] = 0; mz[2][2] = 1; mz[2][3] = 0;
+        mz[3][0] = 0; mz[3][1] = 0; mz[3][2] = 0; mz[3][3] = 1;
+        transform.position = Vec4f.mulMat(mz, transform.position);
+        up = Vec4f.mulMat(mz, up);
+        calcM();
+    }
+
     public float getSw() {
         return sw;
     }
 
     public void setSw(float sw) {
+        if (sw < 0 || sw > 255) return;
         this.sw = sw;
+        calcP();
     }
 
     public float getSh() {
@@ -185,7 +244,9 @@ public class Camera extends Body {
     }
 
     public void setSh(float sh) {
+        if (sh < 0 || sh > 255) return;
         this.sh = sh;
+        calcP();
     }
 
     public float getZf() {
@@ -193,7 +254,9 @@ public class Camera extends Body {
     }
 
     public void setZf(float zf) {
+        if (zf < 0 || zf > 255) return;
         this.zf = zf;
+        calcP();
     }
 
     public float getZb() {
@@ -201,6 +264,16 @@ public class Camera extends Body {
     }
 
     public void setZb(float zb) {
+        if (zb < 0 || zb > 255) return;
         this.zb = zb;
+        calcP();
+    }
+    public void zoom (int m) {
+        if (zb + m > 255 || zf + m <= 0) return;
+        else {
+            zb += m;
+            zf += m;
+        }
+        calcP();
     }
 }

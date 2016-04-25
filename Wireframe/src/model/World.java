@@ -2,6 +2,7 @@ package model;
 
 import javafx.geometry.Point3D;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -15,13 +16,31 @@ public class World {
 
     public World (Camera camera) {
         mainCamera = camera;
-        bodies.add(new WiredBody(0,0,0,0,0,0));
+        ArrayList<Segment> segments = new ArrayList<>();
+        segments.add(new Segment(new Vec4f(10, 7, 10, 1), new Vec4f(-10, 7, 10, 1)));
+        segments.add(new Segment(new Vec4f(10, 7, 10, 1), new Vec4f(10, 7, -10, 1)));
+        segments.add(new Segment(new Vec4f(-10, 7, -10, 1), new Vec4f(-10, 7, 10, 1)));
+        segments.add(new Segment(new Vec4f(-10, 7, -10, 1), new Vec4f(10, 7, -10, 1)));
+
+        segments.add(new Segment(new Vec4f(10, -7, 10, 1), new Vec4f(-10, -7, 10, 1)));
+        segments.add(new Segment(new Vec4f(10, -7, 10, 1), new Vec4f(10, -7, -10, 1)));
+        segments.add(new Segment(new Vec4f(-10, -7, -10, 1), new Vec4f(-10, -7, 10, 1)));
+        segments.add(new Segment(new Vec4f(-10, -7, -10, 1), new Vec4f(10, -7, -10, 1)));
+
+        segments.add(new Segment(new Vec4f(10, 7, 10, 1), new Vec4f(10, -7, 10, 1)));
+        segments.add(new Segment(new Vec4f(10, 7, -10, 1), new Vec4f(10, -7, -10, 1)));
+        segments.add(new Segment(new Vec4f(-10, 7, 10, 1), new Vec4f(-10, -7, 10, 1)));
+        segments.add(new Segment(new Vec4f(-10, 7, -10, 1), new Vec4f(-10, -7, -10, 1)));
+        WiredBody cube = new WiredBody(segments, 0,0,0,0,0,0);
+        cube.setColor(Color.gray);
+        bodies.add(cube);
     }
 
     public void addBody (WiredBody body) {
         bodies.add(body);
-//        setChanged();
-//        notifyObservers();
+    }
+    public void removeBody (WiredBody body) {
+        bodies.remove(body);
     }
 
     public int getBodiesNum () {

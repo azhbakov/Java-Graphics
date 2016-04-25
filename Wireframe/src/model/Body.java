@@ -46,6 +46,9 @@ public class Body {
         transform.position = pos;
         calcM();
     }
+    public Vec4f getPosition () {
+        return transform.position;
+    }
 
     public void setRotation (float rx, float ry, float rz) {
         transform.rotation.x = rx;
@@ -65,6 +68,15 @@ public class Body {
         rot.y = rot.y/180 * (float) Math.PI;
         rot.z = rot.z/180 * (float) Math.PI;
         transform.rotation = rot;
+        calcM();
+    }
+    public Vec4f getRotation () {
+        return transform.rotation;
+    }
+    public void addRotation (float rx, float ry, float rz) {
+        transform.rotation.x += rx;
+        transform.rotation.y += ry;
+        transform.rotation.z += rz;
         calcM();
     }
     private void calcM () {

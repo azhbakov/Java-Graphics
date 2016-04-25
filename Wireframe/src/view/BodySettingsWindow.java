@@ -2,6 +2,7 @@ package view;
 
 import model.Logic;
 import model.RotationBody;
+import model.Vec4f;
 import model.WiredBody;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public class BodySettingsWindow extends JFrame implements Observer{
     JSpinner bodySpinner;
     JSpinner nSpinner, mSpinner, kSpinner;
     JSpinner rSpinner, gSpinner, bSpinner;
+    JSpinner xSpinner, ySpinner, zSpinner;
     JSpinner zfSpinner, zbSpinner, swSpinner, shSpinner;
 
 
@@ -51,11 +53,12 @@ public class BodySettingsWindow extends JFrame implements Observer{
     private JPanel initFieldPanel () {
         JPanel fieldPanel = new JPanel();
         fieldPanel.setLayout(new GridLayout(2, 12, 10, 10));
-        bodySpinner = new JSpinner(new SpinnerNumberModel(1, 1, logic.getWorld().getBodiesNum(), 1));
+        bodySpinner = new JSpinner(new SpinnerNumberModel(logic.getActiveBody(), 1, logic.getWorld().getBodiesNum(), 1));
         bodySpinner.setEditor(new JSpinner.NumberEditor(bodySpinner, "#"));
         bodySpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                logic.setActiveBody((int)bodySpinner.getValue());
                 showCurrentCurve();
             }
         });
@@ -142,11 +145,12 @@ public class BodySettingsWindow extends JFrame implements Observer{
         fieldPanel.add(bSpinner);
 
         zfSpinner = new JSpinner(new SpinnerNumberModel(logic.getCamera().getZf(), 0, 255, 1));
-        zfSpinner.setEditor(new JSpinner.NumberEditor(zfSpinner, "#"));
+        zfSpinner.setEditor(new JSpinner.NumberEditor(zfSpinner, "#.#"));
         zfSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                logic.getCamera().setZf((int)zfSpinner.getValue());
+                logic.getCamera().setZf(((SpinnerNumberModel)zfSpinner.getModel()).getNumber().floatValue());
+                logic.render();
                 //showCurrentCurve();
             }
         });
@@ -154,11 +158,12 @@ public class BodySettingsWindow extends JFrame implements Observer{
         fieldPanel.add(zfSpinner);
 
         zbSpinner = new JSpinner(new SpinnerNumberModel(logic.getCamera().getZb(), 0, 255, 1));
-        zbSpinner.setEditor(new JSpinner.NumberEditor(zbSpinner, "#"));
+        zbSpinner.setEditor(new JSpinner.NumberEditor(zbSpinner, "#.#"));
         zbSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                logic.getCamera().setZb((int)zbSpinner.getValue());
+                logic.getCamera().setZb(((SpinnerNumberModel)zbSpinner.getModel()).getNumber().floatValue());
+                logic.render();
                 //showCurrentCurve();
             }
         });
@@ -170,7 +175,8 @@ public class BodySettingsWindow extends JFrame implements Observer{
         swSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                logic.getCamera().setSw((int)swSpinner.getValue());
+                logic.getCamera().setSw(((SpinnerNumberModel)swSpinner.getModel()).getNumber().floatValue());
+                logic.render();
                 //showCurrentCurve();
             }
         });
@@ -182,12 +188,77 @@ public class BodySettingsWindow extends JFrame implements Observer{
         shSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                logic.getCamera().setSh((int)shSpinner.getValue());
+                logic.getCamera().setSh(((SpinnerNumberModel)shSpinner.getModel()).getNumber().floatValue());
+                logic.render();
                 //showCurrentCurve();
             }
         });
         fieldPanel.add(new JLabel("sh: "));
         fieldPanel.add(shSpinner);
+
+        float x = 0, y = 0, z = 0;
+        if (body != null) {
+            Vec4f pos = body.getPosition();
+            x = pos.x;
+            y = pos.y;
+            z = pos.z;
+        }
+        xSpinner = new JSpinner(new SpinnerNumberModel(x, -255, 255, 1));
+        xSpinner.setEditor(new JSpinner.NumberEditor(xSpinner, "#"));
+        xSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                RotationBody r = (RotationBody)(logic.getWorld().getBody((int)bodySpinner.getValue()));
+                if (r == null) {
+                    return;
+                } else {
+                    r.setPosition(((SpinnerNumberModel)xSpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)ySpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)zSpinner.getModel()).getNumber().floatValue());
+                    logic.render();
+                }
+            }
+        });
+        fieldPanel.add(new JLabel("X: "));
+        fieldPanel.add(xSpinner);
+
+        ySpinner = new JSpinner(new SpinnerNumberModel(y, -255, 255, 1));
+        ySpinner.setEditor(new JSpinner.NumberEditor(ySpinner, "#"));
+        ySpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                RotationBody r = (RotationBody)(logic.getWorld().getBody((int)bodySpinner.getValue()));
+                if (r == null) {
+                    return;
+                } else {
+                    r.setPosition(((SpinnerNumberModel)xSpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)ySpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)zSpinner.getModel()).getNumber().floatValue());
+                    logic.render();
+                }
+            }
+        });
+        fieldPanel.add(new JLabel("Y: "));
+        fieldPanel.add(ySpinner);
+
+        zSpinner = new JSpinner(new SpinnerNumberModel(z, -255, 255, 1));
+        zSpinner.setEditor(new JSpinner.NumberEditor(zSpinner, "#"));
+        zSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                RotationBody r = (RotationBody)(logic.getWorld().getBody((int)bodySpinner.getValue()));
+                if (r == null) {
+                    return;
+                } else {
+                    r.setPosition(((SpinnerNumberModel)xSpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)ySpinner.getModel()).getNumber().floatValue(),
+                            ((SpinnerNumberModel)zSpinner.getModel()).getNumber().floatValue());
+                    logic.render();
+                }
+            }
+        });
+        fieldPanel.add(new JLabel("Z: "));
+        fieldPanel.add(zSpinner);
 
         return fieldPanel;
     }
@@ -204,6 +275,10 @@ public class BodySettingsWindow extends JFrame implements Observer{
             rSpinner.setValue(r.getColor().getRed());
             gSpinner.setValue(r.getColor().getGreen());
             bSpinner.setValue(r.getColor().getBlue());
+            Vec4f pos = r.getPosition();
+            xSpinner.setValue(pos.x);
+            ySpinner.setValue(pos.y);
+            zSpinner.setValue(pos.z);
             //System.out.println("LOADED");
         }
         curvePanel.setNK ((int)nSpinner.getValue(), (int)kSpinner.getValue());
@@ -232,6 +307,9 @@ public class BodySettingsWindow extends JFrame implements Observer{
                             0,0,0, 0,0,0);
                     r.setColor(new Color((int)rSpinner.getValue(), (int)gSpinner.getValue(), (int)bSpinner.getValue()));
                     logic.getWorld().addBody(r);
+                    //bodySpinner.setValue(logic.getWorld().getBodiesNum()-1);
+                    //logic.setActiveBody(logic.getWorld().getBodiesNum()-1);
+                    ((SpinnerNumberModel)bodySpinner.getModel()).setMaximum(logic.getWorld().getBodiesNum());
                 } else {
                     //r.setCurve(curvePanel.getCurve());
                     r.setMarkers(curvePanel.getMarkers(), (int)nSpinner.getValue(), (int)mSpinner.getValue(),
@@ -271,7 +349,15 @@ public class BodySettingsWindow extends JFrame implements Observer{
         addBodyButton.setAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //logic.getWorld().addBody(new RotationBody(curvePanel.getCurve(), 0, 0,0,0, 0,0,0));
+                WiredBody b = new RotationBody(curvePanel.getMarkers(), (int)nSpinner.getValue(), (int)mSpinner.getValue(),
+                        (int)kSpinner.getValue(), 0,0,0, 0,0,0);
+                b.setColor(new Color((int)rSpinner.getValue(), (int)gSpinner.getValue(), (int)bSpinner.getValue()));
+                logic.getWorld().addBody(b);
+                bodySpinner.setValue(logic.getWorld().getBodiesNum()-1);
+                logic.setActiveBody(logic.getWorld().getBodiesNum()-1);
+                ((SpinnerNumberModel)bodySpinner.getModel()).setMaximum(logic.getWorld().getBodiesNum());
+                showCurrentCurve();
+                logic.render();
             }
         });
         addBodyButton.setText("Add body");
@@ -281,7 +367,15 @@ public class BodySettingsWindow extends JFrame implements Observer{
         removeBodyButton.setAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                curvePanel.setMouseMode(CurvePanel.MouseMode.REMOVE);
+                RotationBody r = (RotationBody)(logic.getWorld().getBody((int)bodySpinner.getValue()));
+                if (r == null) {
+                    return;
+                } else {
+                    logic.getWorld().removeBody(r);
+                    ((SpinnerNumberModel)bodySpinner.getModel()).setMaximum(logic.getWorld().getBodiesNum());
+                    showCurrentCurve();
+                    logic.render();
+                }
             }
         });
         removeBodyButton.setText("Remove body");

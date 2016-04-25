@@ -8,8 +8,7 @@ import model.Vec3f;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -20,6 +19,30 @@ import java.util.Observer;
  */
 public class CameraScreen extends JPanel {
     ArrayList<UVLine> lines = new ArrayList<>();
+
+    public CameraScreen (Logic logic) {
+        addMouseMotionListener(new MouseMotionAdapter() {
+            int lastX = -1, lastY = -1;
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                if (lastX != -1 ) {
+                    if (SwingUtilities.isLeftMouseButton(e))
+                        logic.leftMouseMoved((float) (e.getX() - lastX) / getWidth() * 10, (float) (e.getY() - lastY) / getHeight() * 10);
+                    else
+                        logic.rightMouseMoved((float) (e.getX() - lastX) / getWidth() * 10, (float) (e.getY() - lastY) / getHeight() * 10);
+                }
+                lastX = e.getX();
+                lastY = e.getY();
+            }
+        });
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                logic.wheelRotated(e.getWheelRotation());
+            }
+        });
+    }
 
     public void paintComponent (Graphics g) {
         super.paintComponent(g);

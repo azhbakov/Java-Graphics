@@ -4,7 +4,7 @@ package model;
  * Created by marting422 on 21.04.2016.
  */
 public class Vec4f {
-    float x, y, z, w;
+    public float x, y, z, w;
     public Vec4f () {
         x = 0; y = 0; z = 0; w = 1;
     }
