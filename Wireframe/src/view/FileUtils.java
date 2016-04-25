@@ -20,7 +20,7 @@ public class FileUtils {
 			try
 			{
 				String path = URLDecoder.decode(AppWindow.class.getProtectionDomain().getCodeSource().getLocation().getFile(), Charset.defaultCharset().toString());
-				dataDirectory = new File("./Iso");
+				dataDirectory = new File("./Wireframe");
 			}
 			catch (UnsupportedEncodingException e)
 			{

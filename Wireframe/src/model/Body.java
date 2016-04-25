@@ -161,6 +161,10 @@ public class Body {
         return xyz;
     }
 
+    public void setM (float[][] m) {
+        this.m = m;
+    }
+
     public void translate (Vec3f dir) {
 //        float[][] m = new float[4][4];
 //        m[0][0] = 1; m[0][1] = 0; m[0][2] = 0; m[0][3] = dir.x;

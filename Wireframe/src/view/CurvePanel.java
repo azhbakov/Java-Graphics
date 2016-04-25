@@ -73,11 +73,6 @@ public class CurvePanel extends JPanel {
         }
         scaleRanges(gpoints);
         for (Point2D.Float p : gpoints) {
-            //float mx = p.x;
-            //float my = p.y;
-            //int x = modelToPixel(new Point2D.Float(mx, my)).getX();
-            //int y = (int)modelToPixel(new Point2D.Float(mx, my)).getY();
-            //createMarker(x, y);
             markers.add(new Marker(createLabel(), p));
         }
         repaint();
@@ -227,6 +222,7 @@ public class CurvePanel extends JPanel {
 
     private void scaleRanges (ArrayList<Point2D.Float> gpoints) {
         float ratio = getPreferredSize().width/getPreferredSize().height;
+        //float ratio = getSize().width/getSize().height;
         if (gpoints == null || gpoints.isEmpty()) {
             hw = DEFAULTHW;
             hh = hw/ratio;

@@ -27,7 +27,7 @@ public class AppWindow extends JFrame implements Observer {
     Logic logic;
     FastMenu menuBar;
 
-    Action openAction, settingsAction;
+    Action openAction, saveAction, settingsAction;
     Action aboutAction;
     //Action showGridAction, showIsolinesAction, lerpAction;
     //JCheckBoxMenuItem showGridCb, showIsolinesCb, lerpCb;
@@ -62,6 +62,7 @@ public class AppWindow extends JFrame implements Observer {
 
     private void initActions () {
         openAction = new OpenAction();
+        saveAction = new SaveAsAction();
         settingsAction = new SettingsAction();
         aboutAction = new AboutAction();
         //showGridAction = new ShowGridAction();
@@ -72,6 +73,7 @@ public class AppWindow extends JFrame implements Observer {
     private void initToolbar () {
         ToolbarContent[] toolbarContents = {
                 new ToolbarContent(openAction, false),
+                new ToolbarContent(saveAction, false),
                 new ToolbarContent(settingsAction, true),
                 //new ToolbarContent(showGridAction, false),
                 //new ToolbarContent(showIsolinesAction, false),
@@ -166,6 +168,7 @@ public class AppWindow extends JFrame implements Observer {
     private void createFileMenu () throws ClassNotFoundException, NoSuchMethodException {
         menuBar.addMenu("File", null, KeyEvent.VK_F);
         menuBar.addMenuItem(null, "File/Open", openAction);
+        menuBar.addMenuItem(null, "File/Save", saveAction);
         menuBar.addMenuItem(null, "File/Settings", settingsAction);
     }
 
@@ -209,7 +212,7 @@ public class AppWindow extends JFrame implements Observer {
             putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/load.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/load.png"));
         }
         public void actionPerformed(ActionEvent e) {
             openFile ();
@@ -219,13 +222,45 @@ public class AppWindow extends JFrame implements Observer {
         File f = FileUtils.getOpenFileName(this, "txt", "Text file");
         if (f == null) return;
         try {
-            //logic.readSettings(f);
+            logic.openFile(f);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Bad file format.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
+        }
+    }
+
+    public class SaveAsAction extends AbstractAction {
+        public SaveAsAction (/*String text, String desc, int mnemonic, KeyStroke keyStroke*/){
+            super("Save As...");
+            String desc =  "Save field to disk";
+            int mnemonic = KeyEvent.VK_A;
+            KeyStroke keyStroke = null;
+            putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/save.png"));
+            //putValue(MNEMONIC_KEY, mnemonic);
+        }
+        public void actionPerformed(ActionEvent e) {
+            saveFileAs ();
+        }
+    }
+    public void saveFileAs () {
+        File f = FileUtils.getSaveFileName(this, "txt", "Text file");
+        if (f == null)
+            return;
+        else {
+            try {
+                logic.saveFile(f);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "Failed to save.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -238,7 +273,7 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/about.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/about.png"));
 
         }
         public void actionPerformed(ActionEvent e) {
@@ -276,7 +311,7 @@ public class AppWindow extends JFrame implements Observer {
             //putValue(ACCELERATOR_KEY, keyStroke);
             putValue(SHORT_DESCRIPTION, desc);
             putValue(MNEMONIC_KEY, mnemonic);
-            putValue(SMALL_ICON, new ImageIcon("./Iso/icons/settings.png"));
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/settings.png"));
         }
         public void actionPerformed(ActionEvent e) {
             showSettings();

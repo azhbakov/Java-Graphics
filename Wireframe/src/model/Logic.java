@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -140,5 +140,81 @@ public class Logic extends Observable {
     }
     public Camera getCamera () {
         return c;
+    }
+    public void openFile (File f) throws FileNotFoundException {
+        FileInitializer fileInitializer = new FileInitializer(f);
+        GameSettings gs = fileInitializer.parseFile();
+        n = gs.n;
+        m = gs.m;
+        k = gs.k;
+        c.setM(gs.rotMat);
+        c.setZf(gs.zf);
+        c.setZb(gs.zb);
+        c.setSw(gs.sw);
+        c.setSh(gs.sh);
+        c.setZf(gs.zf);
+        cs.setBackgroundCol(gs.backgroundCol);
+        w.clear();
+        activeBody = 1;
+        for (RotationBody r : gs.bodies) {
+            w.addBody(r);
+        }
+        render();
+    }
+    public void saveFile (File f) throws FileNotFoundException, IOException {
+        PrintWriter w = new PrintWriter(new FileWriter(f));
+        w.print(n); w.print(' ');
+        w.print(m); w.print(' ');
+        w.print(k); w.print(' ');
+        w.print(0); w.print(' ');
+        w.print(0); w.print(' ');
+        w.print(0); w.print(' ');
+        w.print(0); w.print(' ');
+        w.println();
+        w.print(c.getZf()); w.print(' ');
+        w.print(c.getZb()); w.print(' ');
+        w.print(c.getSw()); w.print(' ');
+        w.print(c.getSh()); w.print(' ');
+        w.println();
+        float[][] m = c.getM();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                w.print(m[i][j]); w.print(' ');
+            }
+            w.println();
+        }
+        w.print(cs.getBackgroundCol().getRed()); w.print(' ');
+        w.print(cs.getBackgroundCol().getGreen()); w.print(' ');
+        w.print(cs.getBackgroundCol().getBlue()); w.print(' ');
+        w.println();
+        w.print(this.w.getBodiesNum()-1);
+        w.println();
+        for (int nb = 1; nb <= this.w.getBodiesNum()-1; nb++) {
+            WiredBody b = this.w.getBody(nb);
+            w.print(b.getColor().getRed()); w.print(' ');
+            w.print(b.getColor().getGreen()); w.print(' ');
+            w.print(b.getColor().getBlue()); w.print(' ');
+            w.println();
+            w.print(b.getPosition().x); w.print(' ');
+            w.print(b.getPosition().y); w.print(' ');
+            w.print(b.getPosition().z); w.print(' ');
+            w.println();
+            m = b.getM();
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    w.print(m[i][j]); w.print(' ');
+                }
+                w.println();
+            }
+            ArrayList<Point2D.Float> markers = ((RotationBody)b).getMarkers();
+            w.print(markers.size());
+            w.println();
+            for (Point2D.Float p : markers) {
+                w.print(p.x); w.print(' ');
+                w.print(p.y); w.println();
+            }
+        }
+        w.flush();
+        w.close();
     }
 }

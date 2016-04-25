@@ -42,12 +42,13 @@ public class BodySettingsWindow extends JFrame implements Observer{
         p.add (initButtonPanel());
         add(curvePanel, BorderLayout.CENTER);
         add(p, BorderLayout.SOUTH);
-        showCurrentCurve();
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+
+        showCurrentCurve();
     }
 
     private JPanel initFieldPanel () {

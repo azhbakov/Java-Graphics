@@ -1,0 +1,17 @@
+5 5 1 0 0 0 0 // n m k a b c d
+3 20 40 30 // zf zb sw sh
+1 0 0
+0 1 0
+0 0 1
+100 100 100 // background color
+1 // nbodies
+0 0 255 // body color
+1 1 1 // pos
+1 0 0
+0 1 0
+0 0 1
+4
+3 3
+2 2
+1 1
+-1 -1

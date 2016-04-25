@@ -32,7 +32,7 @@ public class World {
         segments.add(new Segment(new Vec4f(-10, 7, 10, 1), new Vec4f(-10, -7, 10, 1)));
         segments.add(new Segment(new Vec4f(-10, 7, -10, 1), new Vec4f(-10, -7, -10, 1)));
         WiredBody cube = new WiredBody(segments, 0,0,0,0,0,0);
-        cube.setColor(Color.gray);
+        cube.setColor(Color.darkGray);
         bodies.add(cube);
     }
 
@@ -60,11 +60,12 @@ public class World {
 
     public void translateCamera (Vec3f dir) {
         mainCamera.translate(dir);
-//        setChanged();
-//        notifyObservers();
     }
 
-    public void translate (WiredBody b, Vec3f dir) {
-
+    public void clear () {
+        int s = bodies.size();
+        for (int i = 1; i < s; i++) {
+            bodies.remove(1);
+        }
     }
 }

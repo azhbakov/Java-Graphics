@@ -19,6 +19,7 @@ import java.util.Observer;
  */
 public class CameraScreen extends JPanel {
     ArrayList<UVLine> lines = new ArrayList<>();
+    Color backgroundCol = Color.gray;
 
     public CameraScreen (Logic logic) {
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -48,36 +49,24 @@ public class CameraScreen extends JPanel {
         super.paintComponent(g);
         revalidate();
         Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(backgroundCol);
+        g2.fillRect(0,0,getWidth(),getHeight());
+        //g2.
         for (UVLine l : lines) {
             l.drawLine(g2, getWidth(), getHeight());
         }
         //logic.updateCameraScreen();
     }
 
-//    public void drawUVLine (float x1, float y1, float x2, float y2) {
-//        int width = getWidth();
-//        int height = getHeight();
-//        if (((Graphics2D) getGraphics()).equals(g2))
-//            g2 = (Graphics2D) getGraphics();
-//        g2.drawLine((int)(x1 * width), (int)((1-y1) * height),
-//                (int)(x2 * width), (int)((1-y2) * height));
-////        System.out.println("From " + (int)(x1 * width) + " " + (int)(y1 * height) +
-////                " to " + (int)(x2 * width) + " " + (int)(y2 * height));
-//    }
-//
-//    public void drawUVLine (float x1, float y1, float x2, float y2, String s, Color c) {
-//        int width = getWidth();
-//        int height = getHeight();
-//        g2.setColor(c);
-//        g2.drawLine((int)(x1 * width), (int)((1-y1) * height),
-//                (int)(x2 * width), (int)((1-y2) * height));
-//        g2.drawString(s, (int)(x2 * width), (int)((1-y2) * height));
-////        System.out.println("From " + (int)(x1 * width) + " " + (int)(y1 * height) +
-////                " to " + (int)(x2 * width) + " " + (int)(y2 * height));
-//    }
-
     public void setUVLines (ArrayList<UVLine> a) {
         lines = a;
         repaint();
+    }
+
+    public void setBackgroundCol (Color c) {
+        backgroundCol = c;
+    }
+    public Color getBackgroundCol () {
+        return backgroundCol;
     }
 }
