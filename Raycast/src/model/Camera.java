@@ -13,15 +13,15 @@ public class Camera extends Body {
     //CameraScreen cameraScreen;
     Vec4f target;
     Vec4f up;
-    float[][] m = new float[4][4]; // mcam
-    float[][] mInverse = new float[4][4];
+    float[][] m = new float[4][4]; // use this to display world coordinates to the model coordinates
+    float[][] mInverse = new float[4][4]; // use this to display model coordinates to world coordinates
     float[][] p = new float[4][4];
     float sw = 40;
     float sh = 30;
-    float zf = 1;
-    float zb = 20;
+    float zf = 20;
+    float zb = 50;
 
-    public Camera (/*CameraScreen cameraScreen,*/ float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
+    public Camera (float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
         super(x, y, z, 1, 0, 0, 0, 1);
         //this.cameraScreen = cameraScreen;
         target = new Vec4f(tx, ty, tz, 1);
@@ -56,6 +56,14 @@ public class Camera extends Body {
         m = mulMat(mtemp, t);
         //printMat(m);
 
+//        Vec4f minusEye = new Vec4f(-transform.position.x, -transform.position.y, -transform.position.z, 1);
+//        mtemp[0][0] = i.x; mtemp[0][1] = i.y; mtemp[0][2] = i.z; mtemp[0][3] = Vec4f.dot(i, minusEye);
+//        mtemp[1][0] = j.x; mtemp[1][1] = j.y; mtemp[1][2] = j.z; mtemp[1][3] = Vec4f.dot(j, minusEye);
+//        mtemp[2][0] = k.x; mtemp[2][1] = k.y; mtemp[2][2] = k.z; mtemp[2][3] = Vec4f.dot(k, minusEye);
+//        mtemp[3][0] = 0; mtemp[3][1] = 0; mtemp[3][2] = 0; mtemp[3][3] = 1;
+//        m = mtemp;
+//        printMat(m);
+
         mtemp[0][0] = i.x; mtemp[0][1] = j.x; mtemp[0][2] = k.x; mtemp[0][3] = 0;
         mtemp[1][0] = i.y; mtemp[1][1] = j.y; mtemp[1][2] = k.y; mtemp[1][3] = 0;
         mtemp[2][0] = i.z; mtemp[2][1] = j.z; mtemp[2][2] = k.z; mtemp[2][3] = 0;
@@ -66,24 +74,46 @@ public class Camera extends Body {
         mInverse = mulMat(t, mtemp);
         //printMat(mInverse);
     }
-    public float[][] getMCam () {
+    public float[][] getM () {
         return m;
     }
 
     private void calcP () {
-//        p[0][0] = 2*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-//        p[1][0] = 0; p[1][1] = 2*zf/sh; p[1][2] = 0; p[1][3] = 0;
-//        p[2][0] = 0; p[2][1] = 0; p[2][2] = zb/(zb-zf); p[2][3] = -zf*zb/(zb-zf);
-//        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1; p[3][3] = 0;
+        p[0][0] = 2*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+        p[1][0] = 0; p[1][1] = 2*zf/sh; p[1][2] = 0; p[1][3] = 0;
+        p[2][0] = 0; p[2][1] = 0; p[2][2] = zb/(zb-zf); p[2][3] = -zf*zb/(zb-zf);
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1; p[3][3] = 0;
 
-        p[0][0] = zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 1f/2;
-        p[1][0] = 0; p[1][1] = zf/sh; p[1][2] = 0; p[1][3] = 1f/2;
-        p[2][0] = 0; p[2][1] = 0; p[2][2] = 1/(zb-zf); p[2][3] = -zf/(zb-zf);
-        p[3][0] = 0; p[3][1] = 0; p[3][2] = 0; p[3][3] = 1;
+//        p[0][0] = zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 1f/2;
+//        p[1][0] = 0; p[1][1] = zf/sh; p[1][2] = 0; p[1][3] = 1f/2;
+//        p[2][0] = 0; p[2][1] = 0; p[2][2] = 1/(zb-zf); p[2][3] = -zf/(zb-zf);
+//        p[3][0] = 0; p[3][1] = 0; p[3][2] = 0; p[3][3] = 1;
+
+//        float fovX = (float)Math.PI*0.8f;
+//        float fovY = (float)Math.PI*0.8f;
+//        p[0][0] = 1f/(float) Math.tan(fovX/2); p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+//        p[1][0] = 0; p[1][1] = 1f/(float) Math.tan(fovY/2); p[1][2] = 0; p[1][3] = 0;
+//        p[2][0] = 0; p[2][1] = 0; p[2][2] = -(zb+zf)/(zb-zf); p[2][3] = -2*(zb*zf)/(zb-zf);
+//        p[3][0] = 0; p[3][1] = 0; p[3][2] = -1; p[3][3] = 0;
+
+//        p[0][0] = 2f*zf/sw; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+//        p[1][0] = 0; p[1][1] = 2f*zf/sh; p[1][2] = 0; p[1][3] = 0;
+//        p[2][0] = 0; p[2][1] = 0; p[2][2] = -(zb+zf)/(zb-zf); p[2][3] = -2*zb*zf/(zb-zf);
+//        p[3][0] = 0; p[3][1] = 0; p[3][2] = -1; p[3][3] = 0;
         //printMat(p);
     }
 
-    private ArrayList<UVLine>  renderWire (WiredBody wiredBody) {
+    public ArrayList<UVLine> calcWires (ArrayList<Body> bodies) {
+        ArrayList<UVLine> res = new ArrayList<>();
+        for (Body b : bodies) {
+            res.addAll(renderXyz(b));
+            if (!(b instanceof WiredBody)) continue;
+            WiredBody w = (WiredBody)b;
+            res.addAll(renderWiredBody(w));
+        }
+        return res;
+    }
+    private ArrayList<UVLine>  renderWiredBody (WiredBody wiredBody) {
         ArrayList<UVLine> res = new ArrayList<>();
         float[][] w = wiredBody.getM();
         for (Segment s : wiredBody.getSegments()) {
@@ -94,9 +124,13 @@ public class Camera extends Body {
             Vec4f inCameraSpace2 = Vec4f.mulMat(m, inWorld2);
 
             Vec4f proj1 = Vec4f.mulMat(p, inCameraSpace1);
-            //proj1.div(proj1.w);
+            proj1.div(proj1.w);
+            proj1.w = 1;
+            //proj1.z = normalize(proj1.z);
             Vec4f proj2 = Vec4f.mulMat(p, inCameraSpace2);
-            //proj2.div(proj2.w);
+            proj2.div(proj2.w);
+            proj2.w = 1;
+            //proj2.z = normalize(proj2.z);
 
             //System.out.println("In model space: ");
             //s.p1.print();
@@ -111,18 +145,26 @@ public class Camera extends Body {
             //proj1.print();
             //proj2.print();
 
+            clip(proj1, proj2);
+//            if (proj1.z > 1f || proj2.z > 1f || proj1.z < -1f || proj2.z < -1f) {
+//                System.out.println(proj1.z + " " + proj2.z);
+//                continue;
+//            }
+            proj1.x = normalize(proj1.x);
+            proj1.y = normalize(proj1.y);
+            proj2.x = normalize(proj2.x);
+            proj2.y = normalize(proj2.y);
             res.add(new UVLine(proj1.x, proj1.y, proj2.x, proj2.y, wiredBody.getColor(), null));
         }
         return res;
     }
-
-    private ArrayList<UVLine>  renderXyz (WiredBody wiredBody) {
+    private ArrayList<UVLine>  renderXyz (Body body) {
         ArrayList<UVLine> res = new ArrayList<>();
-        float[][] w = wiredBody.getM();
+        float[][] w = body.getM();
         Color[] c = {Color.red, Color.green, Color.blue};
         String[] str = {"X", "Y", "Z"};
         int n = 0;
-        for (Segment s : wiredBody.getXyz()) {
+        for (Segment s : body.getXyz()) {
             Vec4f inWorld1 = Vec4f.mulMat(w, s.p1);
             Vec4f inWorld2 = Vec4f.mulMat(w, s.p2);
 
@@ -130,23 +172,64 @@ public class Camera extends Body {
             Vec4f inCameraSpace2 = Vec4f.mulMat(m, inWorld2);
 
             Vec4f proj1 = Vec4f.mulMat(p, inCameraSpace1);
-            //proj1.div(proj1.w);
+            proj1.div(proj1.w);
+            proj1.w = 1;
             Vec4f proj2 = Vec4f.mulMat(p, inCameraSpace2);
-            //proj2.div(proj2.w);
-
+            proj2.div(proj2.w);
+            proj2.w = 1;
+            clip(proj1, proj2);
+//            if (proj1.z > 1f || proj2.z > 1f || proj1.z < -1f || proj2.z < -1f) {
+//                continue;
+//            }
+            proj1.x = normalize(proj1.x);
+            proj1.y = normalize(proj1.y);
+            proj2.x = normalize(proj2.x);
+            proj2.y = normalize(proj2.y);
             res.add(new UVLine(proj1.x, proj1.y, proj2.x, proj2.y, c[n], str[n]));
             n++;
         }
         return res;
     }
 
-    public ArrayList<UVLine> calcWires (ArrayList<WiredBody> bodies) {
-        ArrayList<UVLine> res = new ArrayList<>();
-        for (WiredBody w : bodies) {
-            res.addAll(renderWire(w));
-            res.addAll(renderXyz(w));
+    private void clip (Vec4f p1, Vec4f p2) {
+        Vec4f n, f;
+        if (p1.z < p2.z) {
+            n = p1;
+            f = p2;
+        } else {
+            n = p2;
+            f = p1;
         }
-        return res;
+        float xcn, ycn, xcf, ycf;
+        if (n.z < -1f) {
+            //xcn =(f.x-n.x)*(1f-n.z)/(f.z-n.z)+n.z;
+            //ycn =(f.y-n.y)*(1f-n.z)/(f.z-n.z)+n.z;
+            xcn =(f.x-n.x)*(-1f-n.z)/(f.z-n.z)+n.x;
+            ycn =(f.y-n.y)*(-1f-n.z)/(f.z-n.z)+n.y;
+        } else {
+            xcn = n.x;
+            ycn = n.y;
+        }
+        if (f.z > 1f) {
+            xcf = f.x - (f.x-n.x)*(f.z-1)/(f.z-n.z);
+            ycf = f.y - (f.y-n.y)*(f.z-1)/(f.z-n.z);
+            //System.out.println("FAR " + f.z);
+        } else {
+            xcf = f.x;
+            ycf = f.y;
+            //System.out.println("OK " + f.z);
+        }
+        if ((f.z < -1f && n.z < -1f) || (f.z > 1f && n.z > 1f)) {
+            xcn = ycn = xcf = ycf = 2;
+        }
+        n.x = xcn;
+        n.y = ycn;
+        f.x = xcf;
+        f.y = ycf;
+    }
+    private float normalize (float x) {
+        //if (x < -1f || x > 1f) return x;
+        return (x+1)/2f;
     }
 
     public void translate (Vec3f dir) {
@@ -170,9 +253,14 @@ public class Camera extends Body {
 //        transform.position.print();
         //System.out.println();
         calcM();
-        //calcP();
+        System.out.println("BEFORE");
+        up.print();
+        up = Vec4f.mulMat(mInverse, new Vec4f(0,1,0,1));
+        up = Vec4f.sub(up, transform.position);
+        System.out.println("AFTER");
+        up.print();
+        calcP();
     }
-
     public void rotate (Vec4f dir) {
 //        System.out.println();
         //dir.print();
@@ -192,7 +280,6 @@ public class Camera extends Body {
         applyRotation(r.mul(dir.y));
         applyRotation(u.mul(dir.x));
     }
-
     public void applyRotation (Vec4f axis) {
         transform.rotation.x = axis.x;
         transform.rotation.y = axis.y;
@@ -233,37 +320,30 @@ public class Camera extends Body {
     public float getSw() {
         return sw;
     }
-
     public void setSw(float sw) {
         if (sw < 0 || sw > 255) return;
         this.sw = sw;
         calcP();
     }
-
     public float getSh() {
         return sh;
     }
-
     public void setSh(float sh) {
         if (sh < 0 || sh > 255) return;
         this.sh = sh;
         calcP();
     }
-
     public float getZf() {
         return zf;
     }
-
     public void setZf(float zf) {
         if (zf < 0 || zf > 255) return;
         this.zf = zf;
         calcP();
     }
-
     public float getZb() {
         return zb;
     }
-
     public void setZb(float zb) {
         if (zb < 0 || zb > 255) return;
         this.zb = zb;

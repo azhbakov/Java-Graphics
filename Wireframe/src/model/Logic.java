@@ -103,26 +103,26 @@ public class Logic extends Observable {
     public void keyPressed (char k) {
         switch (k) {
             case 'w':
-                //w.translateCamera(new Vec3f(0,0,1));
-                c.rotate(new Vec4f(0, 0.1f, 0, 1));
+                w.translateCamera(new Vec3f(0,0,1));
+                //c.rotate(new Vec4f(0, 0.1f, 0, 1));
                 break;
             case 's':
-                //w.translateCamera(new Vec3f(0,0,-1));
-                c.rotate(new Vec4f(0, -0.1f, 0, 1));
+                w.translateCamera(new Vec3f(0,0,-1));
+                //c.rotate(new Vec4f(0, -0.1f, 0, 1));
                 break;
             case 'a':
-                //w.translateCamera(new Vec3f(-1,0,0));
-                c.rotate(new Vec4f(-0.1f, 0, 0, 1));
+                w.translateCamera(new Vec3f(-1,0,0));
+                //c.rotate(new Vec4f(-0.1f, 0, 0, 1));
                 break;
             case 'd':
-                //w.translateCamera(new Vec3f(1,0,0));
-                c.rotate(new Vec4f(0.1f, 0, 0, 1));
+                w.translateCamera(new Vec3f(1,0,0));
+                //c.rotate(new Vec4f(0.1f, 0, 0, 1));
                 break;
             case 'q':
-                //w.translateCamera(new Vec3f(0,1,0));
+                w.translateCamera(new Vec3f(0,1,0));
                 break;
             case 'z':
-                //w.translateCamera(new Vec3f(0,-1,0));
+                w.translateCamera(new Vec3f(0,-1,0));
                 break;
         }
         render();
