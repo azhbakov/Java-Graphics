@@ -26,7 +26,7 @@ public class Logic extends Observable {
             w = new World(c);
 
             float r = 1;
-            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r)));
+            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(2*r,r,r), 0,0,0, 0,0,0, 0));
 
             render();
         } catch (Exception ex) {
@@ -36,6 +36,7 @@ public class Logic extends Observable {
 
     public void render () {
         cs.setUVLines(c.calcWires(w.getBodies()));
+        cs.setScreenPoints(c.calcLighting(w.getBodies(), cs.getWidth(), cs.getHeight()));
     }
     public void notifyObservers () {
         setChanged();

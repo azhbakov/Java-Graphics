@@ -1,8 +1,5 @@
 package model;
 
-import view.CameraScreen;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -20,6 +17,7 @@ public class Camera extends Body {
     float sh = 30;
     float zf = 20;
     float zb = 50;
+
 
     public Camera (float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
         super(x, y, z, 1, 0, 0, 0, 1);
@@ -101,6 +99,32 @@ public class Camera extends Body {
 //        p[2][0] = 0; p[2][1] = 0; p[2][2] = -(zb+zf)/(zb-zf); p[2][3] = -2*zb*zf/(zb-zf);
 //        p[3][0] = 0; p[3][1] = 0; p[3][2] = -1; p[3][3] = 0;
         //printMat(p);
+    }
+
+    public ArrayList<ScreenPoint> calcLighting (ArrayList<Body> bodies, int width, int height) {
+        ArrayList<ScreenPoint> res = new ArrayList<>();
+
+        Vec4f toNearPlane = Vec4f.sub(target, transform.position).normalize().mul(zf);
+        Vec4f r = Vec4f.cross(toNearPlane, up).normalize().mul(-sw/width); // - to make right from left
+        Vec4f u = new Vec4f(up).mul(sh/height);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Vec3f from = new Vec3f(transform.position);
+                Vec4f dr = new Vec4f(r).mul(x-width/2); //-width/2 because toNearPlane points to center of near plane
+                Vec4f du = new Vec4f(u).mul(y-height/2);
+                Vec3f dir = new Vec3f(Vec4f.add(Vec4f.add(dr, du), toNearPlane));
+
+                for (Body b : bodies) {
+                    if (!(b instanceof OpticalBody)) continue;
+                    OpticalBody o = (OpticalBody)b;
+                    if (o.findIntersection(from, dir)) {
+                        res.add(new ScreenPoint(x, y, Color.yellow));
+                        //System.out.println(x + " " + y);
+                    }
+                }
+            }
+        }
+        return res;
     }
 
     public ArrayList<UVLine> calcWires (ArrayList<Body> bodies) {
@@ -241,7 +265,7 @@ public class Camera extends Body {
         Vec4f oldPos = transform.position;
         transform.position = Vec4f.mulMat(mInverse, dir4);
         //System.out.print("AFTER:");
-        transform.position.print();
+        //transform.position.print();
 
         //target = target.add(target, Vec4f.sub(transform.position, oldPos));
 
@@ -253,12 +277,12 @@ public class Camera extends Body {
 //        transform.position.print();
         //System.out.println();
         calcM();
-        System.out.println("BEFORE");
-        up.print();
+        //System.out.println("BEFORE");
+        //up.print();
         up = Vec4f.mulMat(mInverse, new Vec4f(0,1,0,1));
         up = Vec4f.sub(up, transform.position);
-        System.out.println("AFTER");
-        up.print();
+        //System.out.println("AFTER");
+        //up.print();
         calcP();
     }
     public void rotate (Vec4f dir) {

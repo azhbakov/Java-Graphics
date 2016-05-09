@@ -1,10 +1,7 @@
 package view;
 
 import javafx.geometry.Point3D;
-import model.Logic;
-import model.Segment;
-import model.UVLine;
-import model.Vec3f;
+import model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,12 +10,14 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Scanner;
 
 /**
  * Created by Martin on 18.04.2016.
  */
 public class CameraScreen extends JPanel {
     ArrayList<UVLine> lines = new ArrayList<>();
+    ArrayList<ScreenPoint> points = new ArrayList<>();
     Color backgroundCol = Color.gray;
 
     public CameraScreen (Logic logic) {
@@ -57,6 +56,9 @@ public class CameraScreen extends JPanel {
         g2.setColor(backgroundCol);
         g2.fillRect(0,0,getWidth(),getHeight());
         //g2.
+        for (ScreenPoint p : points) {
+            p.drawPoint(g2, getWidth(), getHeight());
+        }
         for (UVLine l : lines) {
             l.drawLine(g2, getWidth(), getHeight());
         }
@@ -65,6 +67,11 @@ public class CameraScreen extends JPanel {
 
     public void setUVLines (ArrayList<UVLine> a) {
         lines = a;
+        repaint();
+    }
+
+    public void setScreenPoints (ArrayList<ScreenPoint> a) {
+        points = a;
         repaint();
     }
 

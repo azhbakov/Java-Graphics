@@ -44,6 +44,13 @@ public class Vec4f {
     public static float length (Vec4f a) {
         return (float)Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
     }
+    public Vec4f normalize () {
+        float l = length();
+        return new Vec4f(x/l, y/l, z/l, w);
+    }
+    public static Vec4f reverse (Vec4f a) {
+        return new Vec4f(-a.x, -a.y, -a.z, 1);
+    }
     public Vec4f mul (float n) {
         x *= n;
         y *= n;
