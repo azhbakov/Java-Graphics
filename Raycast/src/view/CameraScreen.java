@@ -21,7 +21,7 @@ public class CameraScreen extends JPanel {
     Color backgroundCol = Color.gray;
 
     public CameraScreen (Logic logic) {
-        addMouseMotionListener(new MouseMotionAdapter() {
+        MouseAdapter mouseAdapter = new MouseAdapter() {
             int lastX = -1, lastY = -1;
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -30,18 +30,27 @@ public class CameraScreen extends JPanel {
                     if (SwingUtilities.isLeftMouseButton(e))
                         logic.leftMouseMoved((float) (e.getX() - lastX) / getWidth() * 10, (float) (e.getY() - lastY) / getHeight() * 10);
                     //else
-                        //logic.rightMouseMoved((float) (e.getX() - lastX) / getWidth() * 10, (float) (e.getY() - lastY) / getHeight() * 10);
+                    //logic.rightMouseMoved((float) (e.getX() - lastX) / getWidth() * 10, (float) (e.getY() - lastY) / getHeight() * 10);
                 }
                 lastX = e.getX();
                 lastY = e.getY();
             }
-        });
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                lastX = -1;
+                lastY = -1;
+            }
+        };
+        addMouseMotionListener(mouseAdapter);
+        addMouseListener(mouseAdapter);
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 if (e.isControlDown()) {
                     logic.ctrlWheelRotated(e.getWheelRotation());
-                    System.out.println("CTR");
+                    //System.out.println("CTR");
                 } else {
                     logic.wheelRotated(e.getWheelRotation());
                 }

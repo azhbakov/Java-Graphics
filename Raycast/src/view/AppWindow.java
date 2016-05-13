@@ -55,7 +55,7 @@ public class AppWindow extends JFrame implements Observer {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        update(logic, null);
+        //update(logic, null);
     }
 
     private void initActions () {

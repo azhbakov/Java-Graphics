@@ -33,14 +33,15 @@ public class BoxBody extends OpticalBody {
         segments.add(new Segment(new Vec4f(-ha, hb, -hc, 1), new Vec4f(-ha, -hb, -hc, 1)));
     }
 
-    public boolean findIntersection (Vec3f from, Vec3f dir) {
+    public SurfacePoint findIntersection (Vec3f from, Vec3f dir) {
         dir.normalize();
         float tnear = Float.NEGATIVE_INFINITY;
         float tfar = Float.POSITIVE_INFINITY;
+        Vec3f n = new Vec3f();
 
         // X plane
         if (dir.x == 0) {
-            if (from.x < min.x || from.x < max.x) return false;
+            if (from.x < min.x || from.x < max.x) return null;
         }
         float t1 = (min.x - from.x)/dir.x;
         float t2 = (max.x - from.x)/dir.x;
@@ -49,14 +50,21 @@ public class BoxBody extends OpticalBody {
             t1 = t2;
             t2 = temp;
         }
-        if (t1 > tnear) tnear = t1;
+        if (t1 > tnear) {
+            tnear = t1;
+            if (from.x < min.x) {
+                n.x = -1;n.y = 0;n.z = 0;
+            } else {
+                n.x = 1;n.y = 0;n.z = 0;
+            }
+        }
         if (t2 < tfar) tfar = t2;
-        if (tnear > tfar) return false;
-        if (tfar < 0) return false;
+        if (tnear > tfar) return null;
+        if (tfar < 0) return null;
 
         // Y plane
         if (dir.y == 0) {
-            if (from.y < min.y || from.y < max.y) return false;
+            if (from.y < min.y || from.y < max.y) return null;
         }
         t1 = (min.y - from.y)/dir.y;
         t2 = (max.y - from.y)/dir.y;
@@ -65,14 +73,21 @@ public class BoxBody extends OpticalBody {
             t1 = t2;
             t2 = temp;
         }
-        if (t1 > tnear) tnear = t1;
+        if (t1 > tnear) {
+            tnear = t1;
+            if (from.y < min.y) {
+                n.x = 0;n.y = -1;n.z = 0;
+            } else {
+                n.x = 0;n.y = 1;n.z = 0;
+            }
+        }
         if (t2 < tfar) tfar = t2;
-        if (tnear > tfar) return false;
-        if (tfar < 0) return false;
+        if (tnear > tfar) return null;
+        if (tfar < 0) return null;
 
         // Z plane
         if (dir.z == 0) {
-            if (from.z < min.z || from.z < max.z) return false;
+            if (from.z < min.z || from.z < max.z) return null;
         }
         t1 = (min.z - from.z)/dir.z;
         t2 = (max.z - from.z)/dir.z;
@@ -81,11 +96,20 @@ public class BoxBody extends OpticalBody {
             t1 = t2;
             t2 = temp;
         }
-        if (t1 > tnear) tnear = t1;
+        if (t1 > tnear) {
+            tnear = t1;
+            if (from.z < min.z) {
+                n.x = 0;n.y = 0;n.z = -1;
+            } else {
+                n.x = 0;n.y = 0;n.z = 1;
+            }
+        }
         if (t2 < tfar) tfar = t2;
-        if (tnear > tfar) return false;
-        if (tfar < 0) return false;
+        if (tnear > tfar) return null;
+        if (tfar < 0) return null;
 
-        return true;
+        Vec3f pos = Vec3f.mul(dir, tnear);
+        pos = Vec3f.add(from, pos);
+        return new SurfacePoint(pos, n, kdr, kdg, kdb, ksr, ksg, ksb, power);
     }
 }

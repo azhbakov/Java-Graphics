@@ -1,5 +1,6 @@
 package model;
 
+import view.AppWindow;
 import view.CameraScreen;
 
 import javax.swing.*;
@@ -22,12 +23,17 @@ public class Logic extends Observable {
         try {
             //c = new Camera(null, 3,2,1, 3,0,2, 0,1,0);
             cs = new CameraScreen(this);
-            c = new Camera(0,0,30, 0,0,0, 0,1,0);
+            c = new Camera(0,0, 30, 0,0,0, 0,1,0);
             w = new World(c);
 
             float r = 1;
-            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(2*r,r,r), 0,0,0, 0,0,0, 0));
+            w.addBody(new BoxBody(new Vec3f(-20,-6,-20), new Vec3f(20,-5,20), 5,5,5, 1,1,1, 1));
+            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r), 5,5,5, 1,1,1, 1));
+            w.addBody(new BoxBody(new Vec3f(-8,-5,-8), new Vec3f(-3,1,-4), 5,5,5, 5,5,5, 1));
+            w.addBody(new LightSource(1.5f, 1, 3, 100, 100, 100));
+            //w.addBody(new LightSource(3, 5, -9, 100, 0, 0));
 
+            AppWindow appWindow = new AppWindow(this);
             render();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -35,8 +41,8 @@ public class Logic extends Observable {
     }
 
     public void render () {
+        cs.setScreenPoints(c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight()));
         cs.setUVLines(c.calcWires(w.getBodies()));
-        cs.setScreenPoints(c.calcLighting(w.getBodies(), cs.getWidth(), cs.getHeight()));
     }
     public void notifyObservers () {
         setChanged();

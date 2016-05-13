@@ -19,5 +19,5 @@ public abstract class OpticalBody extends WiredBody {
         this.power = power;
     }
 
-    public abstract boolean findIntersection (Vec3f from, Vec3f dir);
+    public abstract SurfacePoint findIntersection (Vec3f from, Vec3f dir);
 }

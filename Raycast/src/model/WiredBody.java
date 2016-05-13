@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Created by marting422 on 22.04.2016.
  */
 public class WiredBody extends Body {
-    ArrayList<Segment> segments = new ArrayList<>();;
+    ArrayList<Segment> segments = new ArrayList<>();
     Color c = Color.black;
     public WiredBody (float x, float y, float z, float rx, float ry, float rz) {
         super(x, y, z, 1, rx, ry, rz, 1);

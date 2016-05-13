@@ -12,6 +12,7 @@ import java.util.Observable;
  */
 public class World {
     ArrayList<Body> bodies = new ArrayList<>();
+    ArrayList<LightSource> lights = new ArrayList<>();
 
     public World (Camera camera) {
         ArrayList<Segment> segments = new ArrayList<>();
@@ -36,6 +37,9 @@ public class World {
 
     public void addBody (Body body) {
         bodies.add(body);
+        if (body instanceof LightSource) {
+            lights.add((LightSource) body);
+        }
     }
     public void removeBody (Body body) {
         bodies.remove(body);
@@ -54,6 +58,9 @@ public class World {
 
     public ArrayList<Body> getBodies () {
         return bodies;
+    }
+    public ArrayList<LightSource> getLigths () {
+        return lights;
     }
 
     public void clear () {
