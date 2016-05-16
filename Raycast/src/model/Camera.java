@@ -1,5 +1,7 @@
 package model;
 
+import view.ProgressBar;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -106,7 +108,7 @@ public class Camera extends Body {
         //printMat(p);
     }
 
-    public ArrayList<ScreenPoint> calcLighting (ArrayList<Body> bodies, ArrayList<LightSource> lights, int width, int height) {
+    public ArrayList<ScreenPoint> calcLighting (ArrayList<Body> bodies, ArrayList<LightSource> lights, int width, int height, ProgressBar pBar) {
         ArrayList<ScreenPoint> res = new ArrayList<>();
         ArrayList<Vec3f> colors = new ArrayList<>();
         float max = 0;
@@ -116,6 +118,7 @@ public class Camera extends Body {
         Vec4f u = new Vec4f(up).mul(sh/height);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
+                pBar.updateBar((float)(x+y)/(width+height));
                 Vec3f from = new Vec3f(transform.position);
                 Vec4f dr = new Vec4f(r).mul(x-width/2); //-width/2 because toNearPlane points to center of near plane
                 Vec4f du = new Vec4f(u).mul(y-height/2);
@@ -193,7 +196,7 @@ public class Camera extends Body {
             Vec3f sourceImpact = new Vec3f(0,0,0);
             if (!isLightSourceVisible(bodies, currentBody, l, closestHit)) continue;
             sourceImpact = addColor(sourceImpact, diffuseImpact(l, closestHit));
-            sourceImpact = addColor(sourceImpact, shinyImpact(l, closestHit, dir));
+            sourceImpact = addColor(sourceImpact, specularImpact(l, closestHit, dir));
 
             Vec3f toSource = Vec3f.sub(new Vec3f(l.getPosition()), closestHit.position);
             float distToSource = toSource.length();
@@ -212,8 +215,13 @@ public class Camera extends Body {
             refraction.x *= currentBody.ksr;
             refraction.y *= currentBody.ksg;
             refraction.z *= currentBody.ksb;
-            if (refraction != null)
+            if (refraction != null) {
+                if (noIntersectBody != null) {
+                    Vec3f toSource = Vec3f.sub(from, closestHit.position);
+                    refraction.div(toSource.length());
+                }
                 res = addColor(res, refraction);
+            }
         }
         return res;
     }
@@ -270,7 +278,7 @@ public class Camera extends Body {
         return new Vec3f(r, g, b);
     }
 
-    private Vec3f shinyImpact (LightSource l, SurfacePoint p, Vec3f dir) { // dir to surface from camera
+    private Vec3f specularImpact(LightSource l, SurfacePoint p, Vec3f dir) { // dir to surface from camera
         Vec3f toSource = Vec3f.sub(new Vec3f(l.getPosition()), p.position);
         if (Vec3f.dot(toSource, p.normal) < 0) return new Vec3f(0,0,0);
         Vec3f h = Vec3f.add(toSource, Vec3f.reverse(dir)).normalize();

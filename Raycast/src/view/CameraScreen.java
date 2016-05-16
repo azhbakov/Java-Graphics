@@ -65,8 +65,10 @@ public class CameraScreen extends JPanel {
         g2.setColor(backgroundCol);
         g2.fillRect(0,0,getWidth(),getHeight());
         //g2.
-        for (ScreenPoint p : points) {
-            p.drawPoint(g2, getWidth(), getHeight());
+        if (points != null) {
+            for (ScreenPoint p : points) {
+                p.drawPoint(g2, getWidth(), getHeight());
+            }
         }
         for (UVLine l : lines) {
             l.drawLine(g2, getWidth(), getHeight());

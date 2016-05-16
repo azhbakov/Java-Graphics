@@ -2,6 +2,7 @@ package model;
 
 import view.AppWindow;
 import view.CameraScreen;
+import view.ProgressBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ public class Logic extends Observable {
     World w;
     Camera c;
     CameraScreen cs;
+    boolean render = false;
 
     public Logic () {
         try {
@@ -41,12 +43,32 @@ public class Logic extends Observable {
     }
 
     public void render () {
-        cs.setScreenPoints(c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight()));
+        if (render) {
+            ArrayList<ScreenPoint> res;// = c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight());
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    cs.setScreenPoints(c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight(), new ProgressBar()));
+                }
+            });
+            t.start();
+            //cs.setScreenPoints(res);
+        } else {
+            cs.setScreenPoints(null);
+        }
         cs.setUVLines(c.calcWires(w.getBodies()));
     }
     public void notifyObservers () {
         setChanged();
         super.notifyObservers();
+    }
+
+    public void setRender (boolean value) {
+        render = value;
+        render();
+    }
+    public boolean isRendering () {
+        return render;
     }
 
     //public void rightMouseMoved (float uvX, float uvY) {

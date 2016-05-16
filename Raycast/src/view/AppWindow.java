@@ -29,6 +29,7 @@ public class AppWindow extends JFrame implements Observer {
 
     Action openAction, saveAction, settingsAction;
     Action aboutAction;
+    Action selectViewAction, renderAction;
 
     public AppWindow (Logic logic) {
         super ("Raycast");
@@ -63,12 +64,22 @@ public class AppWindow extends JFrame implements Observer {
         saveAction = new SaveAsAction();
         settingsAction = new SettingsAction();
         aboutAction = new AboutAction();
+        selectViewAction = new SelectViewAction();
+        renderAction = new RenderAction();
         //showGridAction = new ShowGridAction();
         //showIsolinesAction = new ShowIsolinesAction();
         //lerpAction = new LerpAction();
     }
 
     private void initToolbar () {
+        JRadioButton selectViewButton = new JRadioButton(selectViewAction);
+        selectViewButton.setSelected(!logic.isRendering());
+        JRadioButton renderButton = new JRadioButton(renderAction);
+        renderButton.setSelected(logic.isRendering());
+        ButtonGroup g = new ButtonGroup();
+        g.add(selectViewButton);
+        g.add(renderButton);
+
         ToolbarContent[] toolbarContents = {
                 new ToolbarContent(openAction, false),
                 new ToolbarContent(saveAction, false),
@@ -80,6 +91,8 @@ public class AppWindow extends JFrame implements Observer {
         };
 
         JToolBar toolBar = ToolbarUtils.createToolBar(toolbarContents, null);
+        toolBar.add(selectViewButton);
+        toolBar.add(renderButton);
         add(toolBar, BorderLayout.PAGE_START);
         toolBar.setRollover(true);
     }
@@ -168,6 +181,17 @@ public class AppWindow extends JFrame implements Observer {
         menuBar.addMenuItem(null, "File/Open", openAction);
         menuBar.addMenuItem(null, "File/Save", saveAction);
         menuBar.addMenuItem(null, "File/Settings", settingsAction);
+
+        JRadioButtonMenuItem selectViewItem = new JRadioButtonMenuItem();
+        selectViewItem.setSelected(!logic.isRendering());
+        JRadioButtonMenuItem renderItem = new JRadioButtonMenuItem();
+        renderItem.setSelected(logic.isRendering());
+        ButtonGroup g = new ButtonGroup();
+        g.add(selectViewItem);
+        g.add(renderItem);
+        menuBar.addMenu("View", null, KeyEvent.VK_V);
+        menuBar.addMenuItem(selectViewItem, "View/Select view", selectViewAction);
+        menuBar.addMenuItem(renderItem, "View/Render", renderAction);
     }
 
     /*private void createViewMenu () throws ClassNotFoundException, NoSuchMethodException {
@@ -282,6 +306,38 @@ public class AppWindow extends JFrame implements Observer {
         JOptionPane.showMessageDialog (null, ABOUT, "About", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public class SelectViewAction extends AbstractAction {
+        public SelectViewAction (){
+            super("Select view");
+            String desc = "Move camera to select view";
+            int mnemonic = KeyEvent.VK_V;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control V");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.setRender(false);
+        }
+    }
+    public class RenderAction extends AbstractAction {
+        public RenderAction (){
+            super("Render");
+            String desc = "Disable camera movement and render scene";
+            int mnemonic = KeyEvent.VK_R;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke("control R");
+            //putValue(ACCELERATOR_KEY, keyStroke);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+            putValue(SMALL_ICON, new ImageIcon("./Wireframe/icons/about.png"));
+
+        }
+        public void actionPerformed(ActionEvent e) {
+            logic.setRender(true);
+        }
+    }
 //    public class ShowGridAction extends AbstractAction {
 //        public ShowGridAction (){
 //            super("Show grid");
