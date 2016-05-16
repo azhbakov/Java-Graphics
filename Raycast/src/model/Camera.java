@@ -18,6 +18,8 @@ public class Camera extends Body {
     float zf = 20;
     float zb = 50;
     int rayMax = 2;
+    Vec3f ambientColor = new Vec3f(0.1f, 0.1f, 0.1f);
+    float gamma = 1f;
 
 
     public Camera (float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
@@ -106,6 +108,8 @@ public class Camera extends Body {
 
     public ArrayList<ScreenPoint> calcLighting (ArrayList<Body> bodies, ArrayList<LightSource> lights, int width, int height) {
         ArrayList<ScreenPoint> res = new ArrayList<>();
+        ArrayList<Vec3f> colors = new ArrayList<>();
+        float max = 0;
 
         Vec4f toNearPlane = Vec4f.sub(target, transform.position).normalize().mul(zf);
         Vec4f r = Vec4f.cross(toNearPlane, up).normalize().mul(-sw/width); // - to make right from left
@@ -117,23 +121,48 @@ public class Camera extends Body {
                 Vec4f du = new Vec4f(u).mul(y-height/2);
                 Vec3f dir = new Vec3f(Vec4f.add(Vec4f.add(dr, du), toNearPlane));
 
-                Color c = calcPixelLighting(bodies, lights, from, dir);
-                if (c != null) {
-                    res.add(new ScreenPoint(x, y, c));
-                }
+                Vec3f c = calcPixelLighting(bodies, lights, from, dir);
+                float maxColor = Math.max(Math.max(c.x, c.y), c.z);
+                if (maxColor > max) max = maxColor;
+                colors.add(c);
+//                if (c != null) {
+//                    res.add(new ScreenPoint(x, y, c));
+//                }
+            }
+        }
+        //System.out.println(max);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Vec3f c = colors.get(height*x+y);
+                c.div(max); // normalize
+                c = gammaCorrection(c);
+                int red = (int)(c.x * 255 +0.5f);
+                int g = (int)(c.y * 255 +0.5f);
+                int b = (int)(c.z * 255 +0.5f);
+                res.add(new ScreenPoint(x, y, new Color(red, g, b)));
             }
         }
         return res;
     }
 
-    private Color calcPixelLighting (ArrayList<Body> bodies, ArrayList<LightSource> lights, Vec3f from, Vec3f dir) {
-        Color res = shootRay(bodies, null, lights, from, dir, 1);
-        return res;
+    private Vec3f calcPixelLighting (ArrayList<Body> bodies, ArrayList<LightSource> lights, Vec3f from, Vec3f dir) {
+        Vec3f c = shootRay(bodies, null, lights, from, dir, 1);
+//        float maxColor = Math.max(Math.max(c.x, c.y), c.z);
+//        if (maxColor == 0)
+//            return Color.black;
+//        c.div(maxColor); // normalize
+//        c = gammaCorrection(c);
+//        int r = (int)(c.x * 255 +0.5f);
+//        int g = (int)(c.y * 255 +0.5f);
+//        int b = (int)(c.z * 255 +0.5f);
+//        System.out.println(r + " " + g + " " + b);
+        //c.print();
+        return c;
     }
 
-    private Color shootRay (ArrayList<Body> bodies, Body noIntersectBody, ArrayList<LightSource> lights, Vec3f from, Vec3f dir, int count) {
+    private Vec3f shootRay (ArrayList<Body> bodies, Body noIntersectBody, ArrayList<LightSource> lights, Vec3f from, Vec3f dir, int count) {
         SurfacePoint closestHit = null;
-        Body currentBody = null;
+        OpticalBody currentBody = null;
 
         for (Body b : bodies) { // find intersection closest to camera
             if (b == noIntersectBody) continue;
@@ -143,38 +172,55 @@ public class Camera extends Body {
             if (hit != null) {
                 if (closestHit == null) {
                     closestHit = hit;
-                    currentBody = b;
+                    currentBody = o;
                 } else {
                     Vec3f toHit = Vec3f.sub(hit.position, from);
                     Vec3f toClosestHit = Vec3f.sub(closestHit.position, from);
                     if (toHit.length() < toClosestHit.length()) {
                         closestHit = hit;
-                        currentBody = b;
+                        currentBody = o;
                     }
                 }
                 continue;
             }
         }
-        Color res = Color.black;
+        Vec3f res = new Vec3f(0,0,0);
         if (closestHit == null) {
             return res; // return black
         }
         for (LightSource l : lights) {
             //return lightSourceImpact(l, hit);
+            Vec3f sourceImpact = new Vec3f(0,0,0);
             if (!isLightSourceVisible(bodies, currentBody, l, closestHit)) continue;
-            res = addColor(res, diffuseImpact(l, closestHit));
-            res = addColor(res, shinyImpact(l, closestHit, dir));
+            sourceImpact = addColor(sourceImpact, diffuseImpact(l, closestHit));
+            sourceImpact = addColor(sourceImpact, shinyImpact(l, closestHit, dir));
+
+            Vec3f toSource = Vec3f.sub(new Vec3f(l.getPosition()), closestHit.position);
+            float distToSource = toSource.length();
+            sourceImpact.div(distToSource);
+            res = addColor(res, sourceImpact);
         }
+        // Ambient
+        res.x += currentBody.kdr * ambientColor.x;
+        res.y += currentBody.kdg * ambientColor.y;
+        res.z += currentBody.kdb * ambientColor.z;
+        // Secondary rays
         if (count != rayMax) {
             Vec3f newDir = reflect(dir, closestHit.normal);
             //if (newDir == null) return res;
-            Color refraction = shootRay(bodies, currentBody, lights, closestHit.position, newDir, count + 1);
+            Vec3f refraction = shootRay(bodies, currentBody, lights, closestHit.position, newDir, count + 1);
+            refraction.x *= currentBody.ksr;
+            refraction.y *= currentBody.ksg;
+            refraction.z *= currentBody.ksb;
             if (refraction != null)
                 res = addColor(res, refraction);
         }
         return res;
     }
 
+    private Vec3f addColor (Vec3f c1, Vec3f c2) {
+        return Vec3f.add(c1, c2);
+    }
     private Color addColor (Color c1, Color c2) {
         int r = c1.getRed() + c2.getRed();
         if (r > 255) r = 255; if (r < 0) r = 0;
@@ -183,6 +229,14 @@ public class Camera extends Body {
         int b = c1.getBlue() + c2.getBlue();
         if (b > 255) b = 255; if (b < 0) b = 0;
         return new Color(r, g, b);
+    }
+    private float normalizeColor (int c) {
+        return (float)c/255f;
+    }
+    private Vec3f gammaCorrection (Vec3f c) {
+        return new Vec3f((float)Math.pow(c.x, gamma),
+        (float)Math.pow(c.y, gamma),
+        (float)Math.pow(c.z, gamma));
     }
     private boolean isLightSourceVisible (ArrayList<Body> bodies, Body currentBody,  LightSource l, SurfacePoint p) {
         for (Body b : bodies) { // find intersection closest to camera
@@ -205,37 +259,30 @@ public class Camera extends Body {
         return Vec3f.add(n, temp);
     }
 
-    private Color diffuseImpact (LightSource l, SurfacePoint p) {
+    private Vec3f diffuseImpact (LightSource l, SurfacePoint p) {
         Vec3f toSource = Vec3f.sub(new Vec3f(l.getPosition()), p.position);
         float dot = Vec3f.dot(toSource, p.normal);
-        float distToSource = toSource.length();
-        int r = (int)(p.kdr * dot * l.getColor().getRed() / (1+distToSource));
-        if (r > 255) r = 255; if (r < 0) r = 0;
-        int g = (int)(p.kdg * dot * l.getColor().getGreen() / (1+distToSource));
-        if (g > 255) g = 255; if (g < 0) g = 0;
-        int b = (int)(p.kdb * dot * l.getColor().getBlue() / (1+distToSource));
-        if (b > 255) b = 255; if (b < 0) b = 0;
+        if (Vec3f.dot(toSource, p.normal) < 0) return new Vec3f(0,0,0);
+        float r = p.kdr * dot * normalizeColor(l.getColor().getRed());
+        float g = p.kdg * dot * normalizeColor(l.getColor().getGreen());
+        float b = p.kdb * dot * normalizeColor(l.getColor().getBlue());
         //System.out.println(r + " " + g + " " + b);
-        return new Color(r, g, b);
+        return new Vec3f(r, g, b);
     }
 
-    private Color shinyImpact (LightSource l, SurfacePoint p, Vec3f dir) { // dir to surface from camera
+    private Vec3f shinyImpact (LightSource l, SurfacePoint p, Vec3f dir) { // dir to surface from camera
         Vec3f toSource = Vec3f.sub(new Vec3f(l.getPosition()), p.position);
-        if (Vec3f.dot(toSource, p.normal) < 0) return Color.black;
+        if (Vec3f.dot(toSource, p.normal) < 0) return new Vec3f(0,0,0);
         Vec3f h = Vec3f.add(toSource, Vec3f.reverse(dir)).normalize();
         float dot = Vec3f.dot(h, p.normal);
         //System.out.println(dot);
         dot = (float)Math.pow(dot, p.power);
         //System.out.println(dot);
-        float distToSource = toSource.length();
-        int r = (int)(p.ksr * dot * l.getColor().getRed() / (1+distToSource));
-        if (r > 255) r = 255; if (r < 0) r = 0;
-        int g = (int)(p.ksg * dot * l.getColor().getGreen() / (1+distToSource));
-        if (g > 255) g = 255; if (g < 0) g = 0;
-        int b = (int)(p.ksb * dot * l.getColor().getBlue() / (1+distToSource));
-        if (b > 255) b = 255; if (b < 0) b = 0;
+        float r = p.ksr * dot * normalizeColor(l.getColor().getRed());
+        float g = p.ksg * dot * normalizeColor(l.getColor().getGreen());
+        float b = p.ksb * dot * normalizeColor(l.getColor().getBlue());
         //System.out.println(r + " " + g + " " + b);
-        return new Color(r, g, b);
+        return new Vec3f(r, g, b);
     }
 
     public ArrayList<UVLine> calcWires (ArrayList<Body> bodies) {

@@ -50,6 +50,7 @@ public class Vec3f {
     public static Vec3f sub (Vec3f a, Vec3f b) {
         return new Vec3f(a.x - b.x , a.y - b.y, a.z - b.z);
     }
+    public static Vec3f mul (Vec3f a, Vec3f b) { return new Vec3f(a.x*b.x, a.y*b.y, a.z*b.z); }
 
     public Vec3f mul (float n) {
         x *= n;

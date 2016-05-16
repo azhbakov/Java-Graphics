@@ -27,11 +27,11 @@ public class Logic extends Observable {
             w = new World(c);
 
             float r = 1;
-            w.addBody(new BoxBody(new Vec3f(-20,-6,-20), new Vec3f(20,-5,20), 5,5,5, 1,1,1, 1));
-            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r), 5,5,5, 1,1,1, 1));
-            w.addBody(new BoxBody(new Vec3f(-8,-5,-8), new Vec3f(-3,1,-4), 5,5,5, 5,5,5, 1));
+            w.addBody(new BoxBody(new Vec3f(-20,-6,-20), new Vec3f(20,-5,20), 0.4f,0.4f,0.4f, 0.4f,0.4f,0.4f, 1));
+            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r), 0.4f,0.4f,0.4f, 0.1f,0.1f,0.1f, 1));
+            w.addBody(new BoxBody(new Vec3f(-8,-5,-8), new Vec3f(-3,1,-4), 1f,1f,1f, 0.4f,0.4f,0.4f, 1));
             w.addBody(new LightSource(1.5f, 1, 3, 100, 100, 100));
-            //w.addBody(new LightSource(3, 5, -9, 100, 0, 0));
+            w.addBody(new LightSource(3, 5, -9, 255, 0, 0));
 
             AppWindow appWindow = new AppWindow(this);
             render();
