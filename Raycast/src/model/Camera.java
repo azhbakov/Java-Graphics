@@ -19,10 +19,10 @@ public class Camera extends Body {
     float sh = 30;
     float zf = 20;
     float zb = 50;
-    int rayMax = 2;
-    Vec3f ambientColor = new Vec3f(0.1f, 0.1f, 0.1f);
-    float gamma = 1f;
-
+    public int rayMax = 2;
+    public Vec3f ambientColor = new Vec3f(0.1f, 0.1f, 0.1f);
+    public float gamma = 1f;
+    public int quality = 2;
 
     public Camera (float x, float y, float z, float tx, float ty, float tz, float ux, float uy, float uz) {
         super(x, y, z, 1, 0, 0, 0, 1);
@@ -116,9 +116,21 @@ public class Camera extends Body {
         Vec4f toNearPlane = Vec4f.sub(target, transform.position).normalize().mul(zf);
         Vec4f r = Vec4f.cross(toNearPlane, up).normalize().mul(-sw/width); // - to make right from left
         Vec4f u = new Vec4f(up).mul(sh/height);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                pBar.updateBar((float)(x+y)/(width+height));
+        float step;
+        switch (quality) {
+            case 1:
+                step = 2;
+                break;
+            case 2:
+                step = 1;
+                break;
+            default:
+                step = 0.5f;
+                break;
+        }
+        for (float x = 0; x < width; x+=step) {
+            for (float y = 0; y < height; y+=step) {
+                pBar.updateBar((float)(x*height+y)/(width*height));
                 Vec3f from = new Vec3f(transform.position);
                 Vec4f dr = new Vec4f(r).mul(x-width/2); //-width/2 because toNearPlane points to center of near plane
                 Vec4f du = new Vec4f(u).mul(y-height/2);
@@ -134,15 +146,39 @@ public class Camera extends Body {
             }
         }
         //System.out.println(max);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Vec3f c = colors.get(height*x+y);
+        if (quality == 1) step = 2;
+        else step = 1;
+        int m = 1;
+        if (quality == 3) m = 2;
+        for (int x = 0; x < width; x+=step) {
+            for (int y = 0; y < height; y+=step) {
+                Vec3f c = colors.get((int)(height/step*x/step*m*m+y/step*m));
+                if (quality == 3) {
+                    //y++;
+                    Vec3f c2 = colors.get((int)(height*x*m*m+y*m+1));
+                    //y++;
+                    Vec3f c3 = colors.get((int)(height*x*m*m+y*m+2));
+                    //y++;
+                    Vec3f c4 = colors.get((int)(height*x*m*m+y*m+3));
+                    c = Vec3f.add(c, c2);
+                    c = Vec3f.add(c, c3);
+                    c = Vec3f.add(c, c4);
+                    c.div(4);
+                }
                 c.div(max); // normalize
                 c = gammaCorrection(c);
                 int red = (int)(c.x * 255 +0.5f);
                 int g = (int)(c.y * 255 +0.5f);
                 int b = (int)(c.z * 255 +0.5f);
+//                if (red > 255) red = 255;
+//                if (g > 255) g = 255;
+//                if (b > 255) b = 255;
                 res.add(new ScreenPoint(x, y, new Color(red, g, b)));
+                if (quality == 1) {
+                    res.add(new ScreenPoint(x + 1, y, new Color(red, g, b)));
+                    res.add(new ScreenPoint(x, y + 1, new Color(red, g, b)));
+                    res.add(new ScreenPoint(x + 1, y + 1, new Color(red, g, b)));
+                }
             }
         }
         return res;

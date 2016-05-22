@@ -68,5 +68,6 @@ public class World {
         for (int i = 1; i < s; i++) {
             bodies.remove(1);
         }
+        lights.clear();
     }
 }

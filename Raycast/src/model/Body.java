@@ -27,6 +27,11 @@ public class Body {
         rot.y = rot.y/180 * (float) Math.PI;
         rot.z = rot.z/180 * (float) Math.PI;
         transform = new Transform(pos, rot);
+        calcM();
+        xyz = new ArrayList<>();
+        xyz.add(new Segment(0,0,0,1, 1,0,0,1));
+        xyz.add(new Segment(0,0,0,1, 0,1,0,1));
+        xyz.add(new Segment(0,0,0,1, 0,0,1,1));
     }
 
     public void setPosition (float x, float y, float z) {

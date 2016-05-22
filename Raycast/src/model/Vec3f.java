@@ -4,7 +4,7 @@ package model;
  * Created by marting422 on 21.04.2016.
  */
 public class Vec3f {
-    float x, y, z;
+    public float x, y, z;
     public Vec3f (float x, float y, float z) {
         this.x = x;
         this.y = y;
@@ -42,6 +42,9 @@ public class Vec3f {
 
     public static float dot (Vec3f a, Vec3f b) {
         return a.x*b.x + a.y*b.y + a.z*b.z;
+    }
+    public static Vec3f cross (Vec3f a, Vec3f b) {
+        return new Vec3f(a.z*b.y - a.y*b.z, a.x*b.z - a.z*b.x, a.y*b.x - a.x*b.y);
     }
 
     public static Vec3f add (Vec3f a, Vec3f b) {

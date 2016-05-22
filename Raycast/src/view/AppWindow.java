@@ -241,7 +241,7 @@ public class AppWindow extends JFrame implements Observer {
         }
     }
     public void openFile () {
-        File f = FileUtils.getOpenFileName(this, "txt", "Text file");
+        File f = FileUtils.getOpenFileName(this, "scene", "Scene file");
         if (f == null) return;
         try {
             logic.openFile(f);
@@ -372,7 +372,7 @@ public class AppWindow extends JFrame implements Observer {
         }
     }
     public void showSettings () {
-        //SettingsWindow settingsWindow = new SettingsWindow(logic);
+        SettingsWindow settingsWindow = new SettingsWindow(logic);
         //settingsWindow.setLocationRelativeTo(this);
         //BodySettingsWindow w = new BodySettingsWindow(logic);
     }

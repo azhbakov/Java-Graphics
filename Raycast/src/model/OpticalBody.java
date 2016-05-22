@@ -10,6 +10,7 @@ public abstract class OpticalBody extends WiredBody {
     public OpticalBody(float x, float y, float z,
                        float kdr, float kdg, float kdb, float ksr, float ksg, float ksb, float power) {
         super (x,y,z, 0,0,0);
+        //System.out.println(x +" "+ y +" "+ z);
         this.kdr = kdr;
         this.kdg = kdg;
         this.kdb = kdb;

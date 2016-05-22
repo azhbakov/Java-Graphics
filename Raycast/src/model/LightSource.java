@@ -13,6 +13,10 @@ public class LightSource extends Body {
         super(x,y,z,1, 0,0,0,1);
         c = new Color(r, g, b);
     }
+    public LightSource (Vec3f pos, Color color) {
+        super(new Vec4f(pos, 1), new Vec4f(0,0,0,1));
+        c = color;
+    }
 
     public Color getColor () {
         return c;

@@ -2,6 +2,7 @@ package model;
 
 import view.AppWindow;
 import view.CameraScreen;
+import view.FileUtils;
 import view.ProgressBar;
 
 import javax.swing.*;
@@ -30,10 +31,14 @@ public class Logic extends Observable {
 
             float r = 1;
             w.addBody(new BoxBody(new Vec3f(-20,-6,-20), new Vec3f(20,-5,20), 0.4f,0.4f,0.4f, 0.4f,0.4f,0.4f, 1));
-            w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r), 0.4f,0.4f,0.4f, 0.1f,0.1f,0.1f, 1));
+            //w.addBody(new BoxBody(new Vec3f(-r,-r,-r), new Vec3f(r,r,r), 0.4f,0.4f,0.4f, 0.1f,0.1f,0.1f, 1));
             w.addBody(new BoxBody(new Vec3f(-8,-5,-8), new Vec3f(-3,1,-4), 1f,1f,1f, 0.4f,0.4f,0.4f, 1));
             w.addBody(new LightSource(1.5f, 1, 3, 100, 100, 100));
             w.addBody(new LightSource(3, 5, -9, 255, 0, 0));
+            w.addBody(new SphereBody(new Vec3f(0,0,0), 3, 1f,1f,1f, 1f,1f,1f, 100));
+            //w.addBody(new TriangleBody(new Vec3f(5,0,0), new Vec3f(5,0,5), new Vec3f(0,0,5), 1f,1f,1f, 1f,1f,1f, 1));
+            //w.addBody(new TriangleBody(new Vec3f(-5,0,-5), new Vec3f(5,0,-5), new Vec3f(5,2,5), 1f,1f,1f, 1f,1f,1f, 1));
+            w.addBody(new QuadrangleBody(new Vec3f(-2,1,0), new Vec3f(2,1,0), new Vec3f(2,0,3), new Vec3f(-2,0,3), 1f,1f,1f, 1f,1f,1f, 1));
 
             AppWindow appWindow = new AppWindow(this);
             render();
@@ -44,7 +49,7 @@ public class Logic extends Observable {
 
     public void render () {
         if (render) {
-            ArrayList<ScreenPoint> res;// = c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight());
+            //ArrayList<ScreenPoint> res;// = c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight());
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -79,18 +84,22 @@ public class Logic extends Observable {
 //        render();
 //    }
     public void leftMouseMoved (float uvX, float uvY) {
+        if (isRendering()) return;
         c.rotate(new Vec4f(uvX, uvY, 0, 1));
         render();
     }
     public void wheelRotated (int m) {
+        if (isRendering()) return;
         c.zoom(-m);
         render ();
     }
     public void ctrlWheelRotated (int m) {
+        if (isRendering()) return;
         c.translate(new Vec3f(0,0,-1*m));
         render ();
     }
     public void keyPressed (char k) {
+        if (isRendering()) return;
         switch (k) {
             case 'w':
                 c.translate(new Vec3f(0,0,1));
@@ -118,25 +127,115 @@ public class Logic extends Observable {
         render();
     }
 
-    public void openFile (File f) throws FileNotFoundException {
-//        FileInitializer fileInitializer = new FileInitializer(f);
-//        GameSettings gs = fileInitializer.parseFile();
-//        n = gs.n;
-//        m = gs.m;
-//        k = gs.k;
-//        c.setM(gs.rotMat);
-//        c.setZf(gs.zf);
-//        c.setZb(gs.zb);
-//        c.setSw(gs.sw);
-//        c.setSh(gs.sh);
-//        c.setZf(gs.zf);
-//        cs.setBackgroundCol(gs.backgroundCol);
-//        w.clear();
-//        activeBody = 1;
-//        for (RotationBody r : gs.bodies) {
-//            w.addBody(r);
-//        }
-//        render();
+    public void openFile (File f) throws FileNotFoundException, NoSuchElementException {
+        String name = f.getName();
+        //System.out.println(name);
+        String ext = name.substring(name.lastIndexOf('.')+1);
+        //System.out.println(ext);
+        switch (ext) {
+            case "scene":
+                openSceneFile(f);
+                break;
+            default:
+                throw new NoSuchElementException();
+        }
+    }
+
+    public void openSceneFile (File file) throws FileNotFoundException, NoSuchElementException {
+        FileInitializer f = new FileInitializer(file);
+        Scanner s;
+        // Read header
+        Vec3f ambientColor;
+        int nl;
+        s = new Scanner(f.getLine());
+        ambientColor = new Vec3f(s.nextInt(), s.nextInt(), s.nextInt());
+        s = new Scanner(f.getLine());
+        nl = s.nextInt();
+        Vec3f[] lightsPos = new Vec3f[nl];
+        Color[] lightsCol = new Color[nl];
+        for (int i = 0; i < nl; i++) {
+            s = new Scanner(f.getLine());
+            lightsPos[i] = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+            lightsCol[i] = new Color(s.nextInt(), s.nextInt(), s.nextInt());
+            System.out.println(lightsCol[i].getRed()+" "+lightsCol[i].getGreen()+" "+lightsCol[i].getBlue());
+        }
+        // Read scene
+        ArrayList<OpticalBody> bodies = new ArrayList<>();
+        String str;
+        while ((str = f.getLine()) != null) {
+            s = new Scanner(str);
+            String type = s.next();
+            System.out.println("LINE: " +str);
+            switch (type) {
+                case "SPHERE":
+                    s = new Scanner(f.getLine());
+                    Vec3f center = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    float radius = s.nextFloat();
+                    s = new Scanner(f.getLine());
+                    Vec3f kd = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    Vec3f ks = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    float power = s.nextFloat();
+                    bodies.add(new SphereBody(center, radius, kd.x, kd.y, kd.z, ks.x, ks.y, ks.z, power));
+                    System.out.println(kd.x+" "+ kd.y+" "+ kd.z+" "+ks.x+" "+ ks.y+" "+ ks.z);
+                    break;
+                case "BOX":
+                    s = new Scanner(f.getLine());
+                    Vec3f min = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    Vec3f max = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    kd = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    ks = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    power = s.nextFloat();
+                    bodies.add(new BoxBody(min, max, kd.x, kd.y, kd.z, ks.x, ks.y, ks.z, power));
+                    System.out.println(kd.x+" "+ kd.y+" "+ kd.z+" "+ks.x+" "+ ks.y+" "+ ks.z);
+                    break;
+                case "TRIANGLE":
+                    s = new Scanner(f.getLine());
+                    Vec3f p1 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    Vec3f p2 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    Vec3f p3 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    kd = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    ks = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    power = s.nextFloat();
+                    bodies.add(new TriangleBody(p1, p2, p3, kd.x, kd.y, kd.z, ks.x, ks.y, ks.z, power));
+                    System.out.println(kd.x+" "+ kd.y+" "+ kd.z+" "+ks.x+" "+ ks.y+" "+ ks.z);
+                    break;
+                case "QUADRANGLE":
+                    s = new Scanner(f.getLine());
+                    p1 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    p2 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    p3 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    Vec3f p4 = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    s = new Scanner(f.getLine());
+                    kd = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    ks = new Vec3f(s.nextFloat(), s.nextFloat(), s.nextFloat());
+                    power = s.nextFloat();
+                    bodies.add(new QuadrangleBody(p1, p2, p3, p4, kd.x, kd.y, kd.z, ks.x, ks.y, ks.z, power));
+                    System.out.println(kd.x+" "+ kd.y+" "+ kd.z+" "+ks.x+" "+ ks.y+" "+ ks.z);
+                    break;
+                default:
+                    throw new NoSuchElementException();
+            }
+        }
+        // Init
+        w.clear();
+        c.ambientColor = ambientColor.div(255);
+        for (int i = 0; i < nl; i++) {
+            w.addBody(new LightSource(lightsPos[i], lightsCol[i]));
+            //System.out.println(lightsCol[i].getRed()+" "+lightsCol[i].getGreen()+" "+lightsCol[i].getBlue());
+        }
+        for (OpticalBody b : bodies) {
+            w.addBody(b);
+        }
+        render();
     }
     public void saveFile (File f) throws FileNotFoundException, IOException {
 //        PrintWriter w = new PrintWriter(new FileWriter(f));
