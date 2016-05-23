@@ -130,7 +130,7 @@ public class Camera extends Body {
         }
         for (float x = 0; x < width; x+=step) {
             for (float y = 0; y < height; y+=step) {
-                pBar.updateBar((float)(x*height+y)/(width*height));
+                pBar.updateBar((float)(x*height+y)/(width*height*2));
                 Vec3f from = new Vec3f(transform.position);
                 Vec4f dr = new Vec4f(r).mul(x-width/2); //-width/2 because toNearPlane points to center of near plane
                 Vec4f du = new Vec4f(u).mul(y-height/2);
@@ -152,6 +152,7 @@ public class Camera extends Body {
         if (quality == 3) m = 2;
         for (int x = 0; x < width; x+=step) {
             for (int y = 0; y < height; y+=step) {
+                pBar.updateBar(0.5f+(float)(x*height+y)/(width*height*2));
                 Vec3f c = colors.get((int)(height/step*x/step*m*m+y/step*m));
                 if (quality == 3) {
                     //y++;
@@ -254,7 +255,9 @@ public class Camera extends Body {
             if (refraction != null) {
                 if (noIntersectBody != null) {
                     Vec3f toSource = Vec3f.sub(from, closestHit.position);
-                    refraction.div(toSource.length());
+                    float dist = toSource.length();
+                    if (dist < 1) dist = 1;
+                    refraction.div(dist);
                 }
                 res = addColor(res, refraction);
             }
@@ -469,7 +472,7 @@ public class Camera extends Body {
         //System.out.print("AFTER:");
         //transform.position.print();
 
-        //target = target.add(target, Vec4f.sub(transform.position, oldPos));
+        target = target.add(target, Vec4f.sub(transform.position, oldPos));
 
 //        transform.position.x += dir.x;
 //        transform.position.y += dir.y;

@@ -25,7 +25,7 @@ public class TriangleBody extends OpticalBody {
 
     public SurfacePoint findIntersection (Vec3f from, Vec3f dir) {
         dir = dir.normalize();
-        Vec3f planeNormal = Vec3f.cross(Vec3f.sub(p2, p1), Vec3f.sub(p3, p2)).normalize();
+        Vec3f planeNormal = Vec3f.cross(Vec3f.sub(p3, p2), Vec3f.sub(p2, p1)).normalize();
         if (Math.abs(Vec3f.dot(planeNormal, dir)) < 0.0001f || Vec3f.dot(planeNormal, dir) > 0) return null;
         float t = Vec3f.dot(Vec3f.sub(p1, from), planeNormal)/Vec3f.dot(planeNormal, dir);
         if (t < 0) {

@@ -53,6 +53,7 @@ public class Logic extends Observable {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    cs.setUVLines(null);
                     cs.setScreenPoints(c.calcLighting(w.getBodies(), w.getLigths(), cs.getWidth(), cs.getHeight(), new ProgressBar()));
                 }
             });
@@ -60,8 +61,8 @@ public class Logic extends Observable {
             //cs.setScreenPoints(res);
         } else {
             cs.setScreenPoints(null);
+            cs.setUVLines(c.calcWires(w.getBodies()));
         }
-        cs.setUVLines(c.calcWires(w.getBodies()));
     }
     public void notifyObservers () {
         setChanged();
@@ -139,6 +140,17 @@ public class Logic extends Observable {
             default:
                 throw new NoSuchElementException();
         }
+    }
+
+    public void openRenderFile (File file) throws FileNotFoundException, NoSuchElementException {
+        FileInitializer f = new FileInitializer(file);
+        Scanner s;
+        // Read header
+        Vec3f ambientColor;
+        int nl;
+        s = new Scanner(f.getLine());
+        ambientColor = new Vec3f(s.nextInt(), s.nextInt(), s.nextInt());
+        s = new Scanner(f.getLine());
     }
 
     public void openSceneFile (File file) throws FileNotFoundException, NoSuchElementException {

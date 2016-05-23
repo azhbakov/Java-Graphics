@@ -70,8 +70,10 @@ public class CameraScreen extends JPanel {
                 p.drawPoint(g2, getWidth(), getHeight());
             }
         }
-        for (UVLine l : lines) {
-            l.drawLine(g2, getWidth(), getHeight());
+        if (lines != null) {
+            for (UVLine l : lines) {
+                l.drawLine(g2, getWidth(), getHeight());
+            }
         }
         //logic.updateCameraScreen();
     }
